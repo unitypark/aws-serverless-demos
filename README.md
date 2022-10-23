@@ -26,3 +26,10 @@ I hope, this project will be your guideline into AWS Serverless Project and let 
 ✅ EventDriven Architecture
 
 ✅ Real Time Data Subscription using IoT / AppSync
+
+# 👍 Contribute
+
+If you want to say **thank you** and/or support the active development of `Fiber`:
+
+1. Add a [GitHub Star](https://github.com/deloittepark/aws-serverless-golang) to the project.
+2. Follow me or connect with me on [LinkedIn](https://www.linkedin.com/in/junghwa-park-279129235/).
