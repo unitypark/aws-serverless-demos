@@ -1,0 +1,76 @@
+{
+	"info": {
+		"_postman_id": "2408c8bc-bde5-498a-8371-0823c1d0aba8",
+		"name": "URL-Converter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "postUrl",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable(\"path\", jsonData.data.path);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "url",
+							"value": "https://www.linkedin.com/in/junghwa-park-279129235",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/urls",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"urls"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOriginalUrl",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8080/urls/{{path}}",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"urls",
+						"{{path}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,30 @@
+type Message {
+    id: ID!
+    topic: String!
+    text: String!
+}
+
+type Query {
+    getMessageById(id: ID!): Message
+    listMessages: [Message]
+}
+
+type Mutation {
+    createMessage(topic: String!, text: String!): Message
+    updateMessage(id: ID!, topic: String!, text: String!): Message
+    deleteMessage(id: ID!): Message
+}
+
+type Subscription {
+    #subscribe all created messages
+    onCreateMessage: Message @aws_subscribe(mutations: ["createMessage"])
+    #subscribe one specific message on update with given id
+    onUpdateMessage(id: ID!): Message
+        @aws_subscribe(mutations: ["updateMessage"])
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}

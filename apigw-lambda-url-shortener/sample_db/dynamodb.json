@@ -1,0 +1,121 @@
+{
+  "ModelName": "deloittepark/aws-serverless-golang",
+  "ModelMetadata": {
+    "Author": "Junghwa Theo Park",
+    "DateCreated": "19 Oct, 2022, 14:00",
+    "DateLastModified": "19 Oct, 2022, 14:00",
+    "Description": "This data model represents an Amazon DynamoDB schema for url converter.",
+    "Version": "2.0",
+    "AWSService": "Amazon DynamoDB"
+  },
+  "DataModel": [
+    {
+      "TableName": "UrlShortener",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "ID",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "Type",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "State",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "OriginalUrl",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "Path",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "CreatedAt",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "HitCount",
+          "AttributeType": "N"
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "Entities",
+          "KeyAttributes": {
+            "PartitionKey": {
+              "AttributeName": "Type",
+              "AttributeType": "S"
+            },
+            "SortKey": {
+              "AttributeName": "State",
+              "AttributeType": "S"
+            }
+          },
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "TableData": [
+        {
+          "ID": {
+            "S": "12828050664254861381"
+          },
+          "OriginalUrl": {
+            "S": "https://www.linkedin.com/in/junghwa-park-279129235"
+          },
+          "Path": {
+            "S": "BeOVquEOjM"
+          },
+          "CreatedAt": {
+            "S": "2022-10-19T20:59:35Z"
+          },
+          "HitCount": {
+            "N": 1
+          },
+          "Type": {
+            "S": "URL"
+          },
+          "State": {
+            "S": "ACTIVE"
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    }
+  ]
+}

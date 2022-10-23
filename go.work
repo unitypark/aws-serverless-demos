@@ -1,0 +1,8 @@
+go 1.19
+
+use (
+	./apigw-lambda-clean-architecture/api
+	./apigw-lambda-url-shortener/api
+	./appsync-direct-lambda-resolver/src
+	./eventbridge-appsync-lambda-resolver/src
+)

@@ -1,0 +1,28 @@
+# graphql/schema.graphql
+type Note {
+    id: ID!
+    name: String!
+    completed: Boolean!
+}
+
+input CreateNoteInput {
+    name: String!
+    completed: Boolean!
+}
+
+input UpdateNoteInput {
+    id: ID!
+    name: String!
+    completed: Boolean!
+}
+
+type Query {
+    getNoteById(noteId: String!): Note
+    listNotes: [Note]
+}
+
+type Mutation {
+    createNote(payload: CreateNoteInput!): Note
+    updateNote(payload: UpdateNoteInput!): Note
+    deleteNote(noteId: String!): Note
+}
