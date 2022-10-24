@@ -64,7 +64,7 @@ Dependency Inversion (the same one from SOLID) is the principle of dependency in
 The direction of dependencies goes from the outer layer to the inner layer.
 Due to this, business logic and entities remain independent from other parts of the system.
 
-This project has 6 main layers :
+This project has 5 main layers :
  * Models Layer (entities / response)
  * Repository Layer 
  * Usecase Layer (Service Layer)
