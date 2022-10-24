@@ -5,4 +5,5 @@ use (
 	./apigw-lambda-url-shortener/api
 	./appsync-direct-lambda-resolver/src
 	./eventbridge-appsync-lambda-resolver/src
+	./simple-lambda-function/src
 )
