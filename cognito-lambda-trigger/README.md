@@ -1,7 +1,7 @@
 # OIDC user pool IdP authentication flow
 
 ## 📖 Description
-It describes a authentication flow of cognito with OIDC Provider. All of your custom lambda trigger will be invoked at the point of red dot in below diagram.
+It describes a native authentication flow of cognito with OIDC Provider. All of your custom lambda trigger will be invoked at the point of red dot in below diagram.
 
 Without custom lambda trigger, cognito will as default create user into user pool based on the user information, which is retrieved by OIDC IdP. But with custom lambda triggers, you can validate and update this information before or after integrated steps of cognito.
 
@@ -15,9 +15,9 @@ Without custom lambda trigger, cognito will as default create user into user poo
 
 ✅ Generate barer Token
 
-Since I am not developed this service on my own, I cannot gurantee how cognito exactly is implemented in this post. But above 3 steps are tested functions which cognito service does.
+Since I am not developed this service on my own, I cannot gurantee you, how cognito exactly is implemented in this post. But above 3 steps are tested functions which cognito service do for sure for every authentication request.
 
-Cognito can have two different approaches.
+As far as I understood, cognito consits of two approaches.
 - Loging of New User : Sign Up & Generate Token
 - Login of Existing User: Authenticate & Generate Token
 
