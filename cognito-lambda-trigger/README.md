@@ -18,8 +18,8 @@ Without custom lambda trigger, cognito will as default create user into user poo
 Since I am not developed this service on my own, I cannot gurantee you, how cognito exactly is implemented in this post. But above 3 steps are tested functions which cognito service do for sure for every authentication request.
 
 As far as I understood, cognito consits of two approaches.
-- Loging of New User : Sign Up & Generate Token
-- Login of Existing User: Authenticate & Generate Token
+- Login as New User : Sign Up & Generate Token
+- Login as Existing User: Authenticate & Generate Token
 
 ✨ For each cognito service steps, you can integrate your own custom lambda trigger to customize the default function of cognito for your usecase specific scenarios.
 
