@@ -73,7 +73,7 @@ This project has 5 main layers :
 
 ### Layers
 ![Example](./docs/cleanarch.jpg)
-
+Yellow layers are **optional**, if you don't want to user fiber or other routing framework. Then you could simplify your design simply with only 3 layers (Repository, Service and Handler).
 
 ## ✨ Usecase
 Architecture is simple. CDK defines an ApiGateway with single endpoint of **employees**. To this endpoint lambda functions are attached to run CRUD operations with DynamoDB.
