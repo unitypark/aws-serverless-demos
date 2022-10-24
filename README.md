@@ -33,3 +33,4 @@ If you want to say **thank you** and/or If this project is inspired you further:
 
 1. Add a [GitHub Star](https://github.com/deloittepark/aws-serverless-golang) to the project.
 2. Follow me or connect with me on [LinkedIn](https://www.linkedin.com/in/junghwa-park-279129235/).
+3. Clicks Like on my [LinkedIn](https://www.linkedin.com/posts/junghwa-park-279129235_github-deloitteparkaws-serverless-golang-activity-6990052307056918528-g3HF?utm_source=share&utm_medium=member_desktop) post.

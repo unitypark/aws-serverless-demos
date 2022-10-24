@@ -44,12 +44,43 @@ Employee Table is one of the sample data models of NoSQL Workbench.
 
 This sample data model Employee will be committed into your local DynamoDB and you can have seed data to test your CRUD operations.
 
-## ✨ Architecture
+## ✨ Clean Architecture
+### Key idea
+Programmers realize the optimal architecture for an application after most of the code has been written. 
+
+> A good architecture allows decisions to be delayed to as late as possible.
+
+### Rule of Clean Architecture by Uncle Bob
+ * Independent of Frameworks. The architecture does not depend on the existence of some library of feature laden software. This allows you to use such frameworks as tools, rather than having to cram your system into their limited constraints.
+ * Testable. The business rules can be tested without the UI, Database, Web Server, or any other external element.
+ * Independent of UI. The UI can change easily, without changing the rest of the system. A Web UI could be replaced with a console UI, for example, without changing the business rules.
+ * Independent of Database. You can swap out Oracle or SQL Server, for Mongo, BigTable, CouchDB, or something else. Your business rules are not bound to the database.
+ * Independent of any external agency. In fact your business rules simply don’t know anything at all about the outside world.
+
+ More at https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html
+
+### The main principle
+Dependency Inversion (the same one from SOLID) is the principle of dependency inversion.
+The direction of dependencies goes from the outer layer to the inner layer.
+Due to this, business logic and entities remain independent from other parts of the system.
+
+This project has 6 main layers :
+ * Models Layer (entities / response)
+ * Repository Layer 
+ * Usecase Layer (Service Layer)
+ * Routing Layer
+ * Delivery Layer (Handler, fiberApp/Adopter)
+
+### Layers
+![Example](./docs/cleanarch.jpg)
+
+
+## ✨ Usecase
 Architecture is simple. CDK defines an ApiGateway with single endpoint of **employees**. To this endpoint lambda functions are attached to run CRUD operations with DynamoDB.
 
 Exactly same functionality of this AWS Services, however, can be hosted complete locally via **fiber** and **NoSQL Workbench**. 
 
-![](/docs/fiber.jpg)
+![](./docs/fiber.jpg)
 
 
 ## 🔥 Deploy
