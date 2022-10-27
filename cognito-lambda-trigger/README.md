@@ -36,9 +36,10 @@ With custom lambda triggers, you can validate and update the original user infor
 ## ✨ Authenticated User
 In this case, user is already authenticated with OIDC Provider. Authentication flow with OIDC will not be fired and client will get idToken from cognito using access token directly, which is issued by cognito after authentication and is saved in the storage of client browser.
 
-⚠️ **Pre Token Generation Trigger** has the user information from **userpool** (Green Dot 🟢) as input, **not from original user information from OIDC**. It could be different, if your previous trigger functions had updated user information during authentication flow.
-
 ![](./images/second_auth.png)
+
+
+⚠️ **Pre Token Generation Trigger** has the user information from **userpool** (Green Dot 🟢) as input, **not from original user information from OIDC**. It could be different, if your previous trigger functions had updated user information during authentication flow.
 
 ## 💯 Summarize
 ✅ Cognito creates user inside user pool with all mapped information from OIDC Provider.
