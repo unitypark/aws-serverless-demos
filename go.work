@@ -6,4 +6,5 @@ use (
 	./appsync-direct-lambda-resolver/src
 	./eventbridge-appsync-lambda-resolver/src
 	./simple-lambda-function/src
+	./cognito-react-runtime-config/src
 )
