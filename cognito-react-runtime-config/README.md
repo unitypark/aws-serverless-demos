@@ -1,5 +1,5 @@
 # cognito-react-runtime-config-injection
-In **cognito-react-runtime-config** project, I will demonstrate the dynamical way to inject your runtime configuration file to configure your react application with Amplify library to work with AWS Cognito.
+In **cognito-react-runtime-config** project, I will demonstrate the dynamical way to inject your amplify runtime configuration file to configure your react application with Amplify library to work with AWS Cognito.
 
 ## ❤️ Motivation
 This project is an improvement of Blog Post from [AWS Community Builders](https://dev.to/aws-builders/implement-auth-in-react-easily-using-aws-cognito-5bhi). I have referenced react application in this project. Actually many of posts, which you could find out, explain you mostly about how to configure serverless web application with amplify library. But none of them explain you how to inject these configuration values to your application. Even not guided in official documentation of [Amplify](https://docs.amplify.aws/lib/auth/getting-started/q/platform/js/#summary) 🤯
@@ -148,7 +148,7 @@ cdk destroy
 ## 💬 Open Discussion
 In my opinion, there's a bug in cdk constructor of CustomResource. It creates a lambda log group with INFINITE Retention Period. Since this log group is not part of the stack, stack deletion cannot delete this log group. This log group overwrites the explicitly created log group of the lambda as well. So it causes an error, when you've defined a log group for your lambda function inside your cdk, since the same log group was not deleted, your second deployment will fail, becuase log group already exists. 🤯
 
-As Workaround 🚀 I have resoled issue with attaching policy that OnEvent handler is **not allowed** to create log group implicitly. Log group of the lambda will be created and managed by my infrastructure, not by wrapper function of the constructor. 🔥 
+As Workaround 🚀 I have resolved issue with attaching policy that OnEvent handler is **not allowed** to create log group implicitly. Log group of the lambda will be created and managed by my infrastructure, not by wrapper function of the constructor. 🔥 
 
 Below is the Snippet of the code, but you can see full code in stack of this project.
 
