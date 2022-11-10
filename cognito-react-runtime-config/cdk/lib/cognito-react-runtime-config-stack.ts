@@ -72,7 +72,7 @@ export class CognitoReactRuntimeConfigStack extends cdk.Stack {
       ],
       destinationBucket: frontendBucket,
       prune: false,
-      distribution,
+      distribution: distribution,
       distributionPaths: ["/*"],
       retainOnDelete: false,
       exclude: ['runtime-config.json'],
