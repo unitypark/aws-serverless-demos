@@ -7,4 +7,5 @@ use (
 	./eventbridge-appsync-lambda-resolver/src
 	./simple-lambda-function/src
 	./cognito-react-runtime-config/src
+	./docker-golang-fiber-url-shortener/api
 )
