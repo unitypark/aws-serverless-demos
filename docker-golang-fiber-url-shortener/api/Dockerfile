@@ -1,6 +1,6 @@
-FROM golang:1.18-alpine3.16 AS builder
+FROM golang:1.18 as build
 
-WORKDIR /go-fiber
+WORKDIR /go-fiber/src/api
 
 # Copy the Go Modules manifests
 COPY go.mod go.sum ./
@@ -8,16 +8,16 @@ COPY go.mod go.sum ./
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
-COPY app ./app/
-COPY cmd ./cmd/
-COPY internal ./internal/
+COPY . .
+#COPY app ./app/
+#COPY cmd ./cmd/
+#COPY internal ./internal/
 RUN ls -l
 
 # build
-RUN cd ./cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" main.go && ls -l
+RUN cd ./cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /go-fiber/bin/api
 
-# copy artifacts to a clean image
-FROM alpine:3.16
-COPY --from=builder /go-fiber/cmd/main /go-fiber/cmd/main
-RUN ls -l
-ENTRYPOINT [ "/go-fiber/cmd/main" ]	
+# copy artifacts to a distroless image
+FROM gcr.io/distroless/static-debian11
+COPY --from=build /go-fiber/bin/api /
+CMD [ "/api" ]	
