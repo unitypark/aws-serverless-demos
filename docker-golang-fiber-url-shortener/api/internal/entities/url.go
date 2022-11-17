@@ -17,7 +17,7 @@ const (
 	STATE_ACTVE   string = "ACTIVE"
 	STATE_INACTVE string = "INACTVE"
 	timeFormat    string = time.RFC3339
-	Domain        string = "http://domain.io"
+	Domain        string = "https://deloittepark.io"
 )
 
 // Employee represents an employee entity object stored in the database
