@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  api:
+    depends_on: 
+      - dynamodb
+    network_mode: host
+    container_name: golang-fiber-api
+    build:
+      context: "./api"
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      ENVIRONMENT: "local"
+      AWS_ACCESS_KEY_ID: "DUMMYIDEXAMPLE"
+      AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
+      REGION: "eu-west-1"
+  app:
+    build:
+      context: "./ui"
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+  dynamodb:
+    # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.UsageNotes.html
+    command: "-jar DynamoDBLocal.jar -sharedDb -optimizeDbBeforeStartup -dbPath ."
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    user: root

@@ -186,41 +186,62 @@ func (r *dynamoDbRepository) GetOriginalUrl(path *string) (*entities.Url, error)
 // CreateUrl is a dynamodb repository that helps to create new url entry
 func (r *dynamoDbRepository) CreateUrl(entity *entities.Url) (*entities.Url, error) {
 	zap.L().Debug("Repository CreateUrl starts process")
-	var (
-		item   = new(entities.Url)
-		update = expression.Set(
-			expression.Name("OriginalUrl"), expression.Value(entity.OriginalUrl),
-		).Set(
-			expression.Name("Path"), expression.Value(entity.Path),
-		).Set(
-			expression.Name("CreatedAt"), expression.Value(entity.CreatedAt),
-		).Set(
-			expression.Name("HitCount"), expression.Value(entity.HitCount),
-		).Set(
-			expression.Name("Type"), expression.Value(entity.Type),
-		).Set(
-			expression.Name("State"), expression.Value(entity.State),
-		)
-		expr, _         = expression.NewBuilder().WithUpdate(update).Build()
-		updateItemInput = &dynamodb.UpdateItemInput{
-			TableName: r.table,
-			Key: map[string]types.AttributeValue{
-				entities.PK: &types.AttributeValueMemberS{Value: entity.Id},
-			},
-			ReturnValues:              types.ReturnValueAllNew,
-			UpdateExpression:          expr.Update(),
-			ExpressionAttributeValues: expr.Values(),
-			ExpressionAttributeNames:  expr.Names(),
-		}
-	)
-	output, err := r.client.UpdateItem(context.TODO(), updateItemInput)
+	item := new(entities.Url)
+
+	zap.L().Debug("call GetItem to check if given url exists in db")
+	getItemOutput, err := r.client.GetItem(context.TODO(), &dynamodb.GetItemInput{
+		TableName: r.table,
+		Key: map[string]types.AttributeValue{
+			"ID": &types.AttributeValueMemberS{Value: entity.Id},
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	err = attributevalue.UnmarshalMap(output.Attributes, item)
-	if err != nil {
-		return nil, err
+	if getItemOutput.Item != nil {
+		zap.L().Info("given url exists in db")
+		err = attributevalue.UnmarshalMap(getItemOutput.Item, item)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		zap.L().Info("new url is sent")
+		var (
+			update = expression.Set(
+				expression.Name("OriginalUrl"), expression.Value(entity.OriginalUrl),
+			).Set(
+				expression.Name("Path"), expression.Value(entity.Path),
+			).Set(
+				expression.Name("CreatedAt"), expression.Value(entity.CreatedAt),
+			).Set(
+				expression.Name("HitCount"), expression.Value(entity.HitCount),
+			).Set(
+				expression.Name("Type"), expression.Value(entity.Type),
+			).Set(
+				expression.Name("State"), expression.Value(entity.State),
+			)
+			expr, _         = expression.NewBuilder().WithUpdate(update).Build()
+			updateItemInput = &dynamodb.UpdateItemInput{
+				TableName: r.table,
+				Key: map[string]types.AttributeValue{
+					entities.PK: &types.AttributeValueMemberS{Value: entity.Id},
+				},
+				ReturnValues:              types.ReturnValueAllNew,
+				UpdateExpression:          expr.Update(),
+				ExpressionAttributeValues: expr.Values(),
+				ExpressionAttributeNames:  expr.Names(),
+			}
+		)
+		updateItemOutput, err := r.client.UpdateItem(context.TODO(), updateItemInput)
+		if err != nil {
+			return nil, err
+		}
+
+		err = attributevalue.UnmarshalMap(updateItemOutput.Attributes, item)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return item, nil
 }
