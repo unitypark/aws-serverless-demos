@@ -8,4 +8,5 @@ use (
 	./simple-lambda-function/src
 	./cognito-react-runtime-config/src
 	./docker-golang-fiber-url-shortener/api
+	./ecs-url-shortener-migration/api
 )
