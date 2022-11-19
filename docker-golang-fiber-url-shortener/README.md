@@ -34,13 +34,11 @@ DynamoDB Schema is quiet simple. Capability of this table is to hold 1:1 relatio
 ## 🚀 Start Application Locally
 
 ```
-# Go to api folder
-cd api
-
-# Run docker compose
 docker compose up
 ```
-DynamoDB will be hosted in port 8000 and your go-fiber api application will be hosted in port 8080.
+- DynamoDB will be hosted in port 8000
+- API with go-fiber application will be hosted in port 8080
+- React Web Application will be hosted in port 3000
 
 1. Health Check with Get Call
 ```
