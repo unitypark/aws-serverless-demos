@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/deloittepark/ecs-url-shortener/internal/entities"
-	"github.com/deloittepark/ecs-url-shortener/internal/repository"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/entities"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/repository"
 	"go.uber.org/zap"
 )
 

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/deloittepark/ecs-url-shortener/app/response"
-	"github.com/deloittepark/ecs-url-shortener/internal/entities"
-	"github.com/deloittepark/ecs-url-shortener/internal/service"
+	"github.com/deloittepark/ecs-url-shortener-api/app/response"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/entities"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/service"
 	"go.uber.org/zap"
 
 	"github.com/gofiber/fiber/v2"

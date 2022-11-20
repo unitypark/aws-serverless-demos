@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/deloittepark/ecs-url-shortener/app/router"
-	"github.com/deloittepark/ecs-url-shortener/internal/client"
-	appConfig "github.com/deloittepark/ecs-url-shortener/internal/config"
-	zapLogger "github.com/deloittepark/ecs-url-shortener/internal/logger"
-	"github.com/deloittepark/ecs-url-shortener/internal/repository"
-	"github.com/deloittepark/ecs-url-shortener/internal/service"
+	"github.com/deloittepark/ecs-url-shortener-api/app/router"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/client"
+	appConfig "github.com/deloittepark/ecs-url-shortener-api/internal/config"
+	zapLogger "github.com/deloittepark/ecs-url-shortener-api/internal/logger"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/repository"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"

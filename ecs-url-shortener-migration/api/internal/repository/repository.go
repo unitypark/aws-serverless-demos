@@ -11,8 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/deloittepark/ecs-url-shortener/internal/client"
-	"github.com/deloittepark/ecs-url-shortener/internal/entities"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/client"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/entities"
 	"go.uber.org/zap"
 )
 

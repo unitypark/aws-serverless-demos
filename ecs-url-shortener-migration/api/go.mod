@@ -1,4 +1,4 @@
-module github.com/deloittepark/ecs-url-shortener
+module github.com/deloittepark/ecs-url-shortener-api
 
 go 1.18
 

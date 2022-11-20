@@ -3,7 +3,7 @@ package response
 import (
 	"strings"
 
-	"github.com/deloittepark/ecs-url-shortener/internal/entities"
+	"github.com/deloittepark/ecs-url-shortener-api/internal/entities"
 
 	"github.com/gofiber/fiber/v2"
 )

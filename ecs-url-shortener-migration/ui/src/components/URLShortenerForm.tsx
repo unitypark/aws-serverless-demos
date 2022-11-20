@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState, useRef, useEffect, CSSProperties } from "react";
-import { SERVER_ENDPOINTS } from "../config";
 import "./URLShortenerForm.css";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -8,7 +7,8 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import toast, { Toaster } from "react-hot-toast";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import PulseLoader  from "react-spinners/PulseLoader";
-
+import { useContext } from "react";
+import { AppCtx } from "../index";
 
 function URLShortenerForm() {
   const [destination, setDestination] = useState();
@@ -23,6 +23,7 @@ function URLShortenerForm() {
   const [finalUrl, setFinalUrl] = useState<{
     displayUrl: string;
   } | null>(null);
+  const appContext = useContext(AppCtx);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,7 +32,7 @@ function URLShortenerForm() {
     setBackendLoading(true);
 
     const result = await axios
-      .post(`${SERVER_ENDPOINTS}/urls`, { url: destination })
+      .post(`${appContext?.apiEndpoint}/urls`, { url: destination })
       .then((resp) => resp.data)
       .catch((err) => {
         toast.error("Please enter a valid url.");
@@ -41,7 +42,7 @@ function URLShortenerForm() {
     setShortUrlPath(result.data);
     setFinalUrl(result.data.url);
   }
-  var redirectURL = `${SERVER_ENDPOINTS}/urls/${shortUrlPath?.path}`;
+  var redirectURL = `${appContext?.apiEndpoint}/urls/${shortUrlPath?.path}`;
   const text = () => {
     toast.success("Copied!");
   };

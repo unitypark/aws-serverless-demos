@@ -10,7 +10,6 @@ import { GoFunction } from "@aws-cdk/aws-lambda-go-alpha";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from 'aws-cdk-lib/aws-logs'
 import * as iam from "aws-cdk-lib/aws-iam";
-import * as customResources from 'aws-cdk-lib/custom-resources';
 import path from "path";
 
 export class CognitoReactRuntimeConfigStack extends cdk.Stack {

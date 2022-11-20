@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	appConfig "github.com/deloittepark/ecs-url-shortener/internal/config"
+	appConfig "github.com/deloittepark/ecs-url-shortener-api/internal/config"
 )
 
 // It initialize a default global zap logger in service

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	appConfig "github.com/deloittepark/ecs-url-shortener/internal/config"
+	appConfig "github.com/deloittepark/ecs-url-shortener-api/internal/config"
 	"go.uber.org/zap"
 
 	goConfig "github.com/aws/aws-sdk-go-v2/config"
