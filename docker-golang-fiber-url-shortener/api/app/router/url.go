@@ -14,13 +14,12 @@ import (
 )
 
 // UrlRouter is the Router for GoFiber App
-func UrlRouter(app fiber.Router, service service.Service) {
-	app.Get("/", HealthCheck)
-	app.Get("/swagger/*", swagger.HandlerDefault) // default
-
-	app.Get("/urls", GetUrls(service))
-	app.Post("/urls", AddUrl(service))
-	app.Get("/urls/:path", GetUrl(service))
+func UrlRouter(api fiber.Router, service service.Service) {
+	api.Get("/", HealthCheck)
+	api.Get("/swagger/*", swagger.HandlerDefault) // default
+	api.Get("/urls", GetUrls(service))
+	api.Post("/urls", AddUrl(service))
+	api.Get("/urls/:path", GetUrl(service))
 }
 
 // HealthCheck godoc
@@ -41,7 +40,15 @@ func HealthCheck(c *fiber.Ctx) error {
 	return nil
 }
 
-// GetUrls is handler/controller which retrieves all Urls from the UrlShortener Table
+// GetUrls is handler/controller which
+// GetUrls godoc
+// @Summary Get All Urls from DynamoDB Table
+// @Description returns all Urls from the UrlShortener DynamoDB Table.
+// @Tags root
+// @Accept */*
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /urls [get]
 func GetUrls(service service.Service) fiber.Handler {
 	zap.L().Debug("routing request to GET /urls")
 	return func(c *fiber.Ctx) error {

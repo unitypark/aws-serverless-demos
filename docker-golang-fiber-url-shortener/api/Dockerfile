@@ -1,6 +1,7 @@
-FROM golang:1.18 as build
+FROM golang:1.18 AS builder
 
-WORKDIR /go-fiber/src/api
+# Move to working directory (/build).
+WORKDIR /build
 
 # Copy the Go Modules manifests
 COPY go.mod go.sum ./
@@ -9,15 +10,18 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-#COPY app ./app/
-#COPY cmd ./cmd/
-#COPY internal ./internal/
+
 RUN ls -l
 
-# build
-RUN cd ./cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /go-fiber/bin/api
+# Set necessary environment variables needed for our image and build the API server.
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN cd ./cmd && go build -ldflags="-s -w" -o ../apiserver .
 
 # copy artifacts to a distroless image
 FROM gcr.io/distroless/static-debian11
-COPY --from=build /go-fiber/bin/api /
-CMD [ "/api" ]	
+
+# Copy binary and config files from /build to root folder of scratch container.
+COPY --from=builder /build/apiserver /
+
+# Command to run when starting the container.
+ENTRYPOINT [ "/apiserver" ]
