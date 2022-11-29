@@ -1,8 +1,6 @@
 # cloudfront-ecs-url-shortener-app
 
-In **ecs-url-shortener** project, I will demonstrate a fullstack demo application with dockerized api with golang, dynamodb and  react application. You can run this application completely locally and this project is a base for the future migration project to AWS.
-
-It does not contain any Infrastructure for AWS, but this project will be reused in the future as base and in next coming project, I will demonstrate first with ECR then with ECS and finally with EKS.
+In **cloudfront-ecs-url-shortener** project, I will demonstrate a migration of containerized application into aws cloud using cloudfront and ecs fargate. You can run this application completely locally using docker-compose as well for testing.
 
 The React Application in this project is based on [url-shotener-frontend-ts](https://github.com/aditya-singh9/url-shotener-frontend-ts). Special thanks to [adity](https://www.adityasingh.tech/) ❤️
 
