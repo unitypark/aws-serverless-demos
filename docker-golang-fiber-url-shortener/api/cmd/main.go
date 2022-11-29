@@ -5,6 +5,7 @@ import (
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/app/handler"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/app/router"
+	_ "github.com/deloittepark/docker-golang-fiber-url-shortener/docs/swagger"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/internal/client"
 	appConfig "github.com/deloittepark/docker-golang-fiber-url-shortener/internal/config"
 	zapLogger "github.com/deloittepark/docker-golang-fiber-url-shortener/internal/logger"
@@ -38,6 +39,21 @@ func init() {
 	zap.L().Info("lambda cold start")
 }
 
+// @title Fiber Swagger Example API
+// @version 2.0
+// @description This is a sample server server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /
+// @schemes http
 func main() {
 	var (
 		dynamodbClient, _ = client.Connect(config)

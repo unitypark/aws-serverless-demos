@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/app/response"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/internal/entities"
 	"github.com/deloittepark/docker-golang-fiber-url-shortener/internal/service"
@@ -14,9 +15,30 @@ import (
 
 // UrlRouter is the Router for GoFiber App
 func UrlRouter(app fiber.Router, service service.Service) {
+	app.Get("/", HealthCheck)
+	app.Get("/swagger/*", swagger.HandlerDefault) // default
+
 	app.Get("/urls", GetUrls(service))
 	app.Post("/urls", AddUrl(service))
 	app.Get("/urls/:path", GetUrl(service))
+}
+
+// HealthCheck godoc
+// @Summary Show the status of server.
+// @Description get the status of server.
+// @Tags root
+// @Accept */*
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router / [get]
+func HealthCheck(c *fiber.Ctx) error {
+	res := map[string]interface{}{
+		"data": "Server is up and running",
+	}
+	if err := c.JSON(res); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetUrls is handler/controller which retrieves all Urls from the UrlShortener Table
