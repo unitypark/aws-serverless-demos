@@ -45,7 +45,7 @@ Architecture is simple. CDK defines an ApiGateway with single endpoint of **urls
 
 Exactly same functionality of this AWS Services, however, can be hosted complete locally via **fiber** and **NoSQL Workbench**. 
 
-![](./docs/urlConverter.jpg)
+![](./docs/apigw_arch.png)
 
 ## ✨ DynamoDB
 DynamoDB Schema is quiet simple. Capability of this table is to hold 1:1 relation between original url and generated short url. As analysis purpose I have added hitCounter attribute, which will be counted up everytime, when user requested to retrieve original url from DynamoDB. Id Key is saved using hashed value in DynamoDB, so there will be only one entry for each url.
