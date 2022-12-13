@@ -1,0 +1,307 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Poppins";
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  background-color: rgb(255, 255, 255);
+}
+
+.form {
+  border-radius: 45px;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+}
+
+.input {
+  min-width: 20rem;
+  border: none;
+  outline: none;
+  margin: 24px;
+  font-size: 16px;
+}
+
+.button {
+  height: 45px;
+  padding: 0 27px;
+  width: max-content;
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0px 5px 10px -3px #0070f3;
+  background-color: #0070f3;
+  color: #fff;
+  transition: all 0.3s ease 0s;
+}
+
+.button:hover {
+  box-shadow: 0px 3px 12px #0070f3;
+}
+
+.button {
+  margin-right: 8px;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: 50px;
+}
+
+span {
+  color: #0070f3;
+}
+
+a {
+  text-decoration: none;
+}
+
+.name-div {
+  display: flex;
+  justify-content: center;
+}
+
+.head {
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.head-div {
+  display: flex;
+  justify-content: center;
+}
+
+.link {
+  color: #0070f3;
+  font-size: 17px;
+}
+
+.link-div {
+  margin-left: 110px;
+  margin-top: 45px;
+  display: flex;
+}
+
+.copyBtn {
+  color: #0070f3;
+  margin-left: 30px;
+  cursor: pointer;
+}
+
+.text-copied {
+  margin-left: 200px;
+  padding-top: 30px;
+}
+
+.forks_stars_div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  right: 0;
+  box-sizing: border-box;
+  margin: 0 2px 30px;
+}
+
+.block_div {
+  display: flex;
+  align-items: center;
+  width: 20%;
+  border: 2px solid rgb(27, 31, 36, 0.15);
+  border-radius: 5px;
+  margin: 0 7px;
+  min-width: 105px;
+  /* position: relative;  */
+}
+
+.block_divLeft,
+.block_divRight {
+  width: 70px;
+  display: flex;
+  padding: 5px;
+  background-color: #f6f8fa;
+}
+
+.black_pipe {
+  width: 3px;
+  height: 34px;
+  background-color: rgb(27, 31, 36, 0.15);
+}
+
+.forks_stars_text {
+  margin-left: 4px;
+  font-size: 15px;
+}
+
+.block_divLeftNum,
+.block_divRightNum {
+  width: 33px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  text-align: center;
+
+  /* padding: 5px; */
+}
+
+.forkimg {
+  height: 23px;
+  width: 17px;
+  margin-right: 2px;
+}
+
+@media only screen and (max-width: 550px) {
+  .form {
+    width: 350px;
+  }
+
+  .input {
+    min-width: 5rem;
+    margin-left: 18px;
+  }
+
+  .button {
+    width: 75px;
+    font-size: 9px;
+    height: 40px;
+    padding: 0 11px;
+    margin-right: 8px;
+  }
+
+  .name-div {
+    justify-content: center;
+
+  }
+
+  .head-div {
+    justify-content: center;
+  }
+
+  .link {
+    font-size: 15px;
+  }
+
+  .link-div {
+    margin-left: 45px;
+  }
+
+  .text-copied {
+    margin-left: 140px;
+  }
+}
+
+@media only screen and (max-width:300px) {
+  .form {
+    width: 260px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .input {
+    min-width: 5rem;
+    margin-left: 18px;
+  }
+
+  .button {
+    width: 75px;
+    font-size: 9px;
+    height: 40px;
+    padding: 0 8px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+  }
+
+  .name-div {
+    margin-left: 50px;
+  }
+
+  .head-div {
+    margin-left: 50px;
+  }
+
+  .link {
+    font-size: 15px;
+  }
+
+  .link-div {
+    margin-left: 15px;
+  }
+
+  .text-copied {
+    margin-left: 110px;
+  }
+
+  .head-div {
+    margin-left: 0px;
+    justify-content: center;
+  }
+
+  .head {
+    text-align: center;
+    font-size: 1.6rem;
+  }
+
+  .block_div {
+    width: 20%;
+    min-width: 100px;
+  }
+
+  .forks_stars_text {
+    margin-left: 3px;
+  }
+
+  .forks_stars_div {
+    flex-direction: column;
+  }
+
+  .block_div {
+    margin: 5px 0;
+  }
+
+  .forkimg {
+    height: 20px;
+    width: 16px;
+    margin-top: 2px;
+  }
+}
+
+.name-div {
+  margin-left: 0px;
+  justify-content: center;
+}
+
+.name {
+  font-size: 0.9rem;
+}
+
+.btn {
+  color: black;
+}
+
+.fork {
+  margin-left: 3px;
+}
