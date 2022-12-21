@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package kafkaMessages;
+
+option go_package = "./;kafkaMessages";
+
+
+message TodoCreate {
+  string ID = 1;
+  string Title = 2;
+}
+
+message TodoUpdate {
+  string ID = 1;
+  string Title = 2;
+}
+
+message Todo {
+  string ID = 1;
+  string Title = 2;
+  google.protobuf.Timestamp CreatedAt = 3;
+  google.protobuf.Timestamp UpdatedAt = 4;
+}
+
+message TodoCreated {
+  Todo Todo = 1;
+}
+
+message TodoUpdated {
+  Todo Todo = 1;
+}
+
+message TodoDelete {
+  string ID = 1;
+}
+
+message TodoDeleted {
+  string ID = 1;
+}

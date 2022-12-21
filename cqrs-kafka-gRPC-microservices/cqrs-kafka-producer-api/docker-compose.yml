@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    hostname: zookeeper
+    image: wurstmeister/zookeeper:latest
+    expose:
+    - "2181"
+    ports:
+    - "2181:2181"
+  
+  kafka:
+    image: wurstmeister/kafka
+    env_file:
+    - kafka/kafka-variables.env
+    depends_on:
+    - zookeeper
+    ports:
+    - '9092:9092'
+    - '8082:8082'
+    - '8083:8083'
+
+  api_service:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    expose:
+    - "5001"
+    ports:
+      - "5001:5001"
+    restart: always
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - kafka
+  
+  console_consumer:
+    build:
+      context: .
+      dockerfile: docker/consumer.Dockerfile
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      - topic=todo_create
+    depends_on:
+      - kafka

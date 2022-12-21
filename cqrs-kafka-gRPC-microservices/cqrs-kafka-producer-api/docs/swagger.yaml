@@ -1,0 +1,110 @@
+definitions:
+  dto.CreateTodoDto:
+    properties:
+      id:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 0
+        type: string
+    required:
+    - id
+    - title
+    type: object
+  dto.CreateTodoResponseDto:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  dto.UpdateTodoDto:
+    properties:
+      id:
+        maxLength: 255
+        minLength: 0
+        type: string
+      title:
+        maxLength: 255
+        minLength: 0
+        type: string
+    required:
+    - id
+    - title
+    type: object
+info:
+  contact:
+    name: Junghwa Park
+    url: https://github.com/deloittepark/aws-serverless-golang
+  description: This is a sample server celler server.
+  title: Swagger API for Todo Service
+  version: "1.0"
+paths:
+  /todos:
+    post:
+      consumes:
+      - application/json
+      description: Create new Todo item
+      parameters:
+      - description: todo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTodoDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateTodoResponseDto'
+      summary: Create Todo
+      tags:
+      - Todos
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete existing Todo
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Delete Todo
+      tags:
+      - Todos
+    put:
+      consumes:
+      - application/json
+      description: Update existing Todo
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: todo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTodoDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UpdateTodoDto'
+      summary: Update Todo
+      tags:
+      - Todos
+swagger: "2.0"
