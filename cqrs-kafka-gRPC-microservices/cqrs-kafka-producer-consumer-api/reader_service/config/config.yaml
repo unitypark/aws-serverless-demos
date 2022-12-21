@@ -1,0 +1,22 @@
+serviceName: reader_service
+logger:
+  level: debug
+  devMode: false
+  encoder: json
+kafka:
+  brokers: [ "localhost:9092" ]
+  groupID: writer_microservice_consumer
+  initTopics: true
+kafkaTopics:
+  todoCreate:
+    topicName: todo_create
+    partitions: 10
+    replicationFactor: 1
+  todoUpdate:
+    topicName: todo_update
+    partitions: 10
+    replicationFactor: 1
+  todoDelete:
+    topicName: todo_delete
+    partitions: 10
+    replicationFactor: 1

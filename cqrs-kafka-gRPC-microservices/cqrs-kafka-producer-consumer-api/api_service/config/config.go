@@ -24,7 +24,6 @@ type Config struct {
 	Logger      *logger.Config `mapstructure:"logger"`
 	KafkaTopics KafkaTopics    `mapstructure:"kafkaTopics"`
 	Http        Http           `mapstructure:"http"`
-	Grpc        Grpc           `mapstructure:"grpc"`
 	Kafka       *kafka.Config  `mapstructure:"kafka"`
 }
 
@@ -37,10 +36,6 @@ type Http struct {
 	HttpClientDebug     bool     `mapstructure:"httpClientDebug"`
 	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
 	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
-}
-
-type Grpc struct {
-	ReaderServicePort string `mapstructure:"readerServicePort"`
 }
 
 type KafkaTopics struct {
@@ -86,10 +81,6 @@ func InitConfig() (*Config, error) {
 	kafkaBrokers := os.Getenv(constants.KafkaBrokers)
 	if kafkaBrokers != "" {
 		cfg.Kafka.Brokers = []string{kafkaBrokers}
-	}
-	readerServicePort := os.Getenv(constants.ReaderServicePort)
-	if readerServicePort != "" {
-		cfg.Grpc.ReaderServicePort = readerServicePort
 	}
 
 	return cfg, nil

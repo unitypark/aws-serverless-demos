@@ -35,10 +35,8 @@ func (s *server) Run() error {
 
 	s.mw = middlewares.NewMiddlewareManager(s.log, s.cfg)
 
-	kafkaProducer, err := kafka.NewProducer(s.log, s.cfg.Kafka.Brokers)
-	if err != nil {
-		return err
-	}
+	kafkaProducer := kafka.NewProducer(s.log, s.cfg.Kafka.Brokers)
+	defer kafkaProducer.Close() // nolint: errcheck
 
 	s.ps = service.NewTodoService(s.log, s.cfg, kafkaProducer)
 
@@ -47,7 +45,7 @@ func (s *server) Run() error {
 
 	go func() {
 		if err := s.runHttpServer(); err != nil {
-			s.log.Errorf(" s.runHttpServer: %v", err)
+			s.log.Errorf("s.runHttpServer: %v", err)
 			cancel()
 		}
 	}()

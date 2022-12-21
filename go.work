@@ -11,5 +11,5 @@ use (
 	./serverless-web-hosting/docker-golang-fiber-url-shortener/api
 	./serverless-web-hosting/ecs-url-shortener-migration/api
 	./serverless-web-hosting/ecs-url-shortener-migration/customresource
-	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-api
+	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-consumer-api
 )

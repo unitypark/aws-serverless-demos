@@ -1,6 +1,6 @@
 module github.com/deloittepark/cqrs-microservices
 
-go 1.19
+go 1.18
 
 require (
 	github.com/Shopify/sarama v1.37.2
@@ -56,6 +56,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
+	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -66,6 +67,8 @@ require (
 	github.com/valyala/fasthttp v1.43.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/wvanbergen/kafka v0.0.0-20171203153745-e2edea948ddf // indirect
+	github.com/wvanbergen/kazoo-go v0.0.0-20180202103751-f72d8611297a // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect

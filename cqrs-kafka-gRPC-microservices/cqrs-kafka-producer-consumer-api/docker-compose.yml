@@ -33,13 +33,16 @@ services:
       - KAFKA_BROKERS=kafka:9092
     depends_on:
       - kafka
+      - zookeeper
+      - reader_service
   
-  console_consumer:
+  reader_service:
     build:
       context: .
-      dockerfile: docker/consumer.Dockerfile
+      dockerfile: docker/reader_service.Dockerfile
     environment:
       - KAFKA_BROKERS=kafka:9092
-      - topic=todo_create
+      - ZOOKEEPERS=zookeeper:2181
     depends_on:
       - kafka
+      - zookeeper
