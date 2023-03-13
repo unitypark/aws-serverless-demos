@@ -7,28 +7,43 @@ import * as path from 'path';
 
 type CloudwatchConfig = {
   explicitLogGroup: boolean,
-  logRetention: logs.RetentionDays,
-  removalPolicy: RemovalPolicy,
+  logRetention?: logs.RetentionDays,
+  removalPolicy?: RemovalPolicy,
 }
 
 export class LambdaCloudwatchStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // log group should be remained
+    // default log group created by cloudformation custom resource
+    // creation time: log group will be created automatically, once the lambda is invoked.
     this.createLambda(
-      'retain-log-group-lambda', 
+      'lambda-log-group-default', 
+      `/../lambda/hello_function.ts`, 
+      {
+        explicitLogGroup: false,
+        logRetention: undefined,
+        removalPolicy: undefined,
+      }
+    )
+
+    // default log group created by cloudformation custom resource, but with specific retention period
+    // creation time: log group will be created, after stack is deployed
+    this.createLambda(
+      'lambda-log-group-retain', 
       `/../lambda/hello_function.ts`, 
       {
         explicitLogGroup: false,
         logRetention: logs.RetentionDays.THREE_MONTHS,
-        removalPolicy: RemovalPolicy.RETAIN,
+        removalPolicy: undefined,
       }
     )
   
-    // log group should be destroyed
+    // log group created explicitly as a resource of the stack
+    // creation time: log group will be created, after stack is deployed
+    // it should be destroyed with stack together, in order to be able to redeploy stack in the future
     this.createLambda(
-      'destroy-log-group-lambda', 
+      'lambda-log-group-destroy', 
       `/../lambda/hello_function.ts`, 
       {
         explicitLogGroup: true,

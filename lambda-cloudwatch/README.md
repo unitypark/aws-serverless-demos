@@ -7,7 +7,19 @@ _AWS Services used_: AWS Lambda, AWS Cloudwatch
 
 In this demo you will see:
 
-- How to define your lambda function and cloudwatch log group properly with different removal policies and retention period.
+- log group created by cloudformation custom resource, once the lambda is invoked.
+
+- log group with different retention period created by cloudformation custom resource
+
+- log group created explicitly as part of the stack resource. 
+
+## Goal
+**Retaining LogGroup and reusing it when redeploy the Lambda**
+
+How to define your lambda function and cloudwatch log group properly with different removal policies and retention period, so that you could keep certain log groups after redeploy and do not have any error because of existing resources during deployment of the stack.
+
+https://stackoverflow.com/questions/67210534/retaining-loggroup-and-reusing-it-when-redeploy-the-lambda
+
 
 ## Requirements
 
@@ -25,11 +37,8 @@ npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Lambda-Cloudwatch-Demo' -
 Deploy the project to the cloud:
 
 ```
-cdk synth
-cdk deploy
+npm install && cdk deploy
 ```
-
-When asked about functions that may not have authorization defined, answer (y)es. The access to those functions will be open to anyone, so keep the app deployed only for the time you need this demo running.
 
 To delete the app:
 
@@ -37,15 +46,16 @@ To delete the app:
 cdk destroy
 ```
 
-## Links related to this code
+## Summary
 
-- Video with more details: https://youtu.be/CeqwpYhlHbQ
+- By default, cloudformation custom resource creates a log group for lambda with **removalPolicy = RETAIN and logRetetion = INFINITE**.
 
-### AWS CDK useful commands
+- If you want to change its default behaviour, you have to create explicitly a log group for your lambda, which will overwrite the default setting. Its name must be defined in same manner, e.g. **/aws/lambda/{functionName}**
 
-- `npm run build` compile typescript to js
-- `npm run watch` watch for changes and compile
-- `npm run test` perform the jest unit tests
-- `cdk deploy` deploy this stack to your default AWS account/region
-- `cdk diff` compare deployed stack with current state
-- `cdk synth` emits the synthesized CloudFormation template
+- If you, however, have any edge cases, that your stack should be re-deployed, then explicitly created log group's removalPolicy  must be set to DESTROY before. Otherwise, when you redeploy your stack after deletion, stack creation will throw an error, because log group with same name exists already in your account because of RETAIN policy.
+
+- If you want to redeploy your stacks and keep your cloudwatch logs after redeploy, do not define your cloudwatch log group explicitly. Let custom resource handle this case. It will only create a new log group, if there's no log group exists in your account.
+
+## Reference
+1. [CDK V2 aws-logs](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_logs-readme.html)
+2. [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html)
