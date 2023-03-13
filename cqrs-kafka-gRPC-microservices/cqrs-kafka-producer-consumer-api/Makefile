@@ -10,11 +10,11 @@ run_consumer_logger:
 # Docker
 
 docker_dev:
-	@echo Starting local docker dev compose
+	@echo Starting local docker compose
 	docker compose -f docker-compose.yml up --build
 
 docker_local:
-	@echo Starting local docker compose
+	@echo Starting local docker dev compose
 	docker compose -f docker-compose.local.yml up -d --build
 
 
