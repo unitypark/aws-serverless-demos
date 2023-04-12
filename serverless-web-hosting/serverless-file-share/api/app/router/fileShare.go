@@ -16,13 +16,13 @@ import (
 
 // FileShareRouter is the Router for GoFiber App
 func FileShareRouter(app fiber.Router, service service.Service) {
-	app.Post("/downloads", PostDownloadUrl(service))
-	app.Get("/downloads/:key", GetDownloadUrl(service))
+	app.Post("/api/downloads", PostDownloadUrl(service))
+	app.Get("/api/downloads/:key", GetDownloadUrl(service))
 }
 
 // GetDownloadUrl is handler/controller which retrieves original Url of shortened url from the UrlShortener Table
 func GetDownloadUrl(service service.Service) fiber.Handler {
-	zap.L().Debug("routing request to GET /downloads/:key")
+	zap.L().Debug("routing request to GET /api/downloads/:key")
 	return func(c *fiber.Ctx) error {
 		pathParameter := c.Params("key")
 		if len(pathParameter) == 0 {
@@ -45,7 +45,7 @@ func GetDownloadUrl(service service.Service) fiber.Handler {
 
 // PostDownloadUrl is handler/controller which creates Url Entry in the UrlConverter Table
 func PostDownloadUrl(service service.Service) fiber.Handler {
-	zap.L().Debug("routing request to POST /downloads")
+	zap.L().Debug("routing request to POST /api/downloads")
 	return func(c *fiber.Ctx) error {
 		var requestBody entities.PostDownloadRequest
 		err := c.BodyParser(&requestBody)

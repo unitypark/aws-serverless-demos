@@ -28,11 +28,11 @@ function URLShortenerForm() {
     setBackendLoading(true);
 
     const apiClient = axios.create({
-      baseURL: appContext?.apiEndpoint,
+      baseURL: appContext?.origin,
     });
 
     const result = await apiClient
-      .post(`downloads`, { path: path })
+      .post(`/api/downloads`, { path: path })
       .then((resp) => resp.data)
       .catch((err) => {
         toast.error("Something went wrong");
@@ -42,7 +42,7 @@ function URLShortenerForm() {
     setResponse(result.data);
     setAccessKey(result.data.accessKey);
   }
-  var redirectURL = `${window.location.href}downloads?key=${response?.accessKey}`;
+  var redirectURL = `${appContext?.origin}/downloads?key=${response?.accessKey}`;
   const text = () => {
     toast.success("Copied!");
   };

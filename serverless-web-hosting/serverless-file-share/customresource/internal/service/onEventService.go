@@ -1,14 +1,12 @@
 package service
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/cfn"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	cognitoidentityproviderService "github.com/deloittepark/serverless-file-share-customresource/internal/cognito"
 	"github.com/deloittepark/serverless-file-share-customresource/internal/config"
-	s3Service "github.com/deloittepark/serverless-file-share-customresource/internal/s3"
 	"go.uber.org/zap"
 )
 
@@ -19,40 +17,44 @@ type (
 		OnDeleteEvent(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error)
 	}
 	onEventService struct {
-		config    *config.Config
-		s3Service s3Service.S3ServiceIface
+		config                         *config.Config
+		cognitoidentityproviderService cognitoidentityproviderService.CognitoIdentityProviderServiceIface
 	}
 )
 
-func NewOnEventService(config *config.Config, s3Service s3Service.S3ServiceIface) OnEventServiceIface {
+func NewOnEventService(
+	config *config.Config,
+	cognitoidentityproviderService cognitoidentityproviderService.CognitoIdentityProviderServiceIface,
+) OnEventServiceIface {
 	return &onEventService{
-		config:    config,
-		s3Service: s3Service,
+		config:                         config,
+		cognitoidentityproviderService: cognitoidentityproviderService,
 	}
 }
 
 func (crs *onEventService) OnCreateEvent(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 	err = crs.config.Init(event.ResourceProperties)
 	if err != nil {
+		zap.L().Error("unexpected error during config init", zap.Error(err))
 		return
 	}
-	versionId, err := crs.uploadRuntimeConfig()
+	err = crs.initCognitoUser()
 	if err != nil {
-		zap.L().Error("unexpected error during uploading runtime config file", zap.Error(err))
+		zap.L().Error("unexpected error during cognito user init", zap.Error(err))
 		return
 	}
-	physicalResourceID = *versionId
 	return
 }
 
 func (crs *onEventService) OnUpdateEvent(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 	err = crs.config.Init(event.ResourceProperties)
 	if err != nil {
+		zap.L().Error("unexpected error during config init", zap.Error(err))
 		return
 	}
-	_, err = crs.uploadRuntimeConfig()
+	err = crs.updateCognitoUserPassword()
 	if err != nil {
-		zap.L().Error("unexpected error during uploading runtime config file", zap.Error(err))
+		zap.L().Error("unexpected error during cognito user init", zap.Error(err))
 		return
 	}
 	return
@@ -61,32 +63,34 @@ func (crs *onEventService) OnUpdateEvent(ctx context.Context, event cfn.Event) (
 func (crs *onEventService) OnDeleteEvent(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 	err = crs.config.Init(event.ResourceProperties)
 	if err != nil {
+		zap.L().Error("unexpected error during config init", zap.Error(err))
 		return
 	}
-	versionId, err := crs.deleteRuntimeConfig()
-	if err != nil {
-		zap.L().Error("unexpected error during uploading runtime config file", zap.Error(err))
-		return
-	}
-	physicalResourceID = *versionId
 	return
 }
 
-func (crs *onEventService) uploadRuntimeConfig() (*string, error) {
-	jsonMap, err := json.MarshalIndent(crs.config.ReactRuntimeConfig, "", " ")
+func (crs *onEventService) initCognitoUser() error {
+	err := crs.cognitoidentityproviderService.CreateUser(&cognitoidentityprovider.AdminCreateUserInput{
+		UserPoolId: &crs.config.UserPoolId,
+		Username:   &crs.config.AdminUsername,
+	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return crs.s3Service.Upload(&s3.PutObjectInput{
-		Bucket: &crs.config.FrontendBucketName,
-		Key:    &crs.config.RuntimeConfigFileName,
-		Body:   bytes.NewReader(jsonMap),
+
+	return crs.cognitoidentityproviderService.SetUserPassword(&cognitoidentityprovider.AdminSetUserPasswordInput{
+		UserPoolId: &crs.config.UserPoolId,
+		Username:   &crs.config.AdminUsername,
+		Password:   &crs.config.AdminPassword,
+		Permanent:  true,
 	})
 }
 
-func (crs *onEventService) deleteRuntimeConfig() (*string, error) {
-	return crs.s3Service.Delete(&s3.DeleteObjectInput{
-		Bucket: &crs.config.FrontendBucketName,
-		Key:    &crs.config.RuntimeConfigFileName,
+func (crs *onEventService) updateCognitoUserPassword() error {
+	return crs.cognitoidentityproviderService.SetUserPassword(&cognitoidentityprovider.AdminSetUserPasswordInput{
+		UserPoolId: &crs.config.UserPoolId,
+		Username:   &crs.config.AdminUsername,
+		Password:   &crs.config.AdminPassword,
+		Permanent:  true,
 	})
 }

@@ -42,7 +42,7 @@ function UploaderForm() {
     setBackendLoading(true);
 
     const result = await axios
-      .post(`${appContext?.apiEndpoint}urls`, { url: destination })
+      .post(`${appContext?.origin}urls`, { url: destination })
       .then((resp) => resp.data)
       .catch((err) => {
         toast.error("Please enter a valid url.");

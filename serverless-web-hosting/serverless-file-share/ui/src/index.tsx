@@ -7,29 +7,25 @@ import reportWebVitals from "./reportWebVitals";
 import { createContext } from "react";
 
 interface AppContextInterface {
-  apiEndpoint: string;
+  origin: string;
 }
 
 export const AppCtx = createContext<AppContextInterface | null>(null);
 
 // Provider in your app
 var appContext: AppContextInterface = {
-  apiEndpoint: "http://localhost:8080",
+  // e.g. https://example.cloudfront.net
+  origin: `${window.location.origin}`,
 };
 
-fetch(process.env.PUBLIC_URL + '/runtime-config.json')
-  .then((response) => response.json())
-  .then((runtimeContext) => {
-    appContext.apiEndpoint = runtimeContext.apiEndpoint
-    ReactDOM.render(
-      <React.StrictMode>
-        <AppCtx.Provider value={appContext}>
-          <App />
-        </AppCtx.Provider>
-      </React.StrictMode>,
-      document.getElementById("root")
-    );
-  }).catch((e) => console.log(e));
+ReactDOM.render(
+  <React.StrictMode>
+    <AppCtx.Provider value={appContext}>
+      <App />
+    </AppCtx.Provider>
+  </React.StrictMode>,
+  document.getElementById("root")
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

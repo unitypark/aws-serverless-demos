@@ -27,11 +27,11 @@ function DownloaderForm() {
     setBackendLoading(true);
 
     const apiClient = axios.create({
-      baseURL: appContext?.apiEndpoint,
+      baseURL: appContext?.origin,
     });
 
     const result = await apiClient
-      .get(`downloads/${accessKey}`)
+      .get(`/api/downloads/${accessKey}`)
       .then((resp) => resp.data)
       .catch((err) => {
         toast.error("access key is not valid");

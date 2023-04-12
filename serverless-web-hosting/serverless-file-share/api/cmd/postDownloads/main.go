@@ -44,7 +44,7 @@ func main() {
 		repo              = repository.NewRepository(dynamodbClient)
 		fileShareService  = service.NewFileShareService(config, repo)
 	)
-	fiberApp.Post("/downloads", router.PostDownloadUrl(fileShareService))
+	fiberApp.Post("/api/downloads", router.PostDownloadUrl(fileShareService))
 
 	if config.Env == appConfig.Local {
 		zap.L().Debug("start local server on port 8080", zap.Error(fiberApp.Listen(":8080")))

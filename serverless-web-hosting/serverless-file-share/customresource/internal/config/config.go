@@ -5,17 +5,15 @@ import (
 )
 
 const (
-	PROPERTY_RUNTIME_CONFIG_FILE_NAME string = "runtimeConfigFileName"
-	PROPERTY_FRONTEND_BUCKET_NAME     string = "frontendBucketName"
-	PROPERTY_API_GATEWAY_URL          string = "apiGatewayUrl"
+	PROPERTY_COGNITO_USERPOOL_ID     string = "userpoolId"
+	PROPERTY_USERPOOL_ADMIN_USERNAME string = "userPoolAdminUsername"
+	PROPERTY_USERPOOL_ADMIN_PASSWORD string = "userPoolAdminPassword"
 )
 
 type Config struct {
-	RuntimeConfigFileName string `json:"runtimeConfigFileName"`
-	FrontendBucketName    string `json:"frotendBucketName"`
-	ReactRuntimeConfig    struct {
-		ApiEndpoint string `json:"apiEndpoint"`
-	} `json:"runtimeConfig"`
+	UserPoolId    string `json:"userPoolId"`
+	AdminUsername string `json:"adminUsername"`
+	AdminPassword string `json:"adminPassword"`
 }
 
 func New() *Config {
@@ -24,15 +22,15 @@ func New() *Config {
 
 func (c *Config) Init(resourceProperties map[string]interface{}) error {
 	var err error
-	c.RuntimeConfigFileName, err = strProperty(resourceProperties, PROPERTY_RUNTIME_CONFIG_FILE_NAME)
+	c.UserPoolId, err = strProperty(resourceProperties, PROPERTY_COGNITO_USERPOOL_ID)
 	if err != nil {
 		return err
 	}
-	c.FrontendBucketName, err = strProperty(resourceProperties, PROPERTY_FRONTEND_BUCKET_NAME)
+	c.AdminUsername, err = strProperty(resourceProperties, PROPERTY_USERPOOL_ADMIN_USERNAME)
 	if err != nil {
 		return err
 	}
-	c.ReactRuntimeConfig.ApiEndpoint, err = strProperty(resourceProperties, PROPERTY_API_GATEWAY_URL)
+	c.AdminPassword, err = strProperty(resourceProperties, PROPERTY_USERPOOL_ADMIN_PASSWORD)
 	if err != nil {
 		return err
 	}
