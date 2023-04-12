@@ -11,8 +11,7 @@ import (
 	"github.com/oklog/ulid"
 )
 
-// Employee represents an employee entity object stored in the database
-type Url struct {
+type Asset struct {
 	PK         string `json:"pk" dynamodbav:"PK"`
 	SK         string `json:"sk" dynamodbav:"SK"`
 	AccessKey  string `json:"accessKey" dynamodbav:"AccessKey,omitempty"`
@@ -26,12 +25,11 @@ type Url struct {
 	State      string `json:"state" dynamodbav:"State,omitempty"`
 }
 
-// DeleteRequest struct is used to parse Delete Reqeusts for Books
-type PostUrlRequest struct {
+type PostDownloadRequest struct {
 	Path string `json:"path"`
 }
 
-func (u *Url) InitNewUrl(urlType, path, url string, expiringMinutes int) {
+func (u *Asset) InitNewAsset(urlType, path, url string, expiringMinutes int) {
 	currentUTCTime := getCurrentUTCTime()
 	ulid := getUlid(currentUTCTime)
 

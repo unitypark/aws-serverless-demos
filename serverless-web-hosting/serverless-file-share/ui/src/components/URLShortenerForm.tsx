@@ -11,7 +11,7 @@ import { useContext } from "react";
 import { AppCtx } from "../index";
 
 function URLShortenerForm() {
-  const [destination, setDestination] = useState();
+  const [path, setPath] = useState();
   const divRef = useRef<HTMLAnchorElement>(null);
   const [loading, setloading] = useState(true);
   const [backendLoading, setBackendLoading] = useState(false);
@@ -32,10 +32,10 @@ function URLShortenerForm() {
     });
 
     const result = await apiClient
-      .post(`downloads`, { path: destination })
+      .post(`downloads`, { path: path })
       .then((resp) => resp.data)
       .catch((err) => {
-        toast.error("Please enter a valid url.");
+        toast.error("Something went wrong");
       });
 
     setBackendLoading(false);
@@ -111,7 +111,7 @@ function URLShortenerForm() {
               </div>
             </div>
           </div>
-          <div className="outer">
+          {/* <div className="outer">
             <form className="form" onSubmit={handleSubmit}>
               <div>
                 <input
@@ -124,19 +124,19 @@ function URLShortenerForm() {
                 upload
               </button>
             </form>
-          </div>
+          </div> */}
           
           <div className="outer">
             <form className="form" onSubmit={handleSubmit}>
               <div>
                 <input
                   className="input"
-                  placeholder="Enter Downloading Path"
-                  onChange={(e: any) => setDestination(e.target.value)}
+                  placeholder="e.g. folder/sub/sample.zip"
+                  onChange={(e: any) => setPath(e.target.value)}
                 />
               </div>
               <button type="submit" className="button">
-                download
+                generate!
               </button>
             </form>
           </div>

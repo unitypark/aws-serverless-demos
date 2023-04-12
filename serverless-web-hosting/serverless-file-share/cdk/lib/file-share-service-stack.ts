@@ -20,8 +20,6 @@ export class FileShareServiceStack extends cdk.Stack {
     super(scope, id, props);
 
     const API_LAMBDA_PREFIX = '../api/cmd'
-    const LAMBDA_POST_UPLOADS_LOCATION = `${API_LAMBDA_PREFIX}/postUploads/main.go`
-    const LAMBDA_GET_UPLOAD_LOCATION = `${API_LAMBDA_PREFIX}/getUpload/main.go`
     const LAMBDA_POST_DOWNLOADS_LOCATION = `${API_LAMBDA_PREFIX}/postDownloads/main.go`
     const LAMBDA_GET_DOWNLOAD_LOCATION = `${API_LAMBDA_PREFIX}/getDownload/main.go`
 
@@ -150,15 +148,8 @@ export class FileShareServiceStack extends cdk.Stack {
     });
 
     // create lambda functions
-    const postUploadsHandler = this.createLambda('post-uploads', LAMBDA_POST_UPLOADS_LOCATION) 
-    const getUploadHandler = this.createLambda('get-upload', LAMBDA_GET_UPLOAD_LOCATION)
     const postDownloadsHandler = this.createLambda('post-downloads', LAMBDA_POST_DOWNLOADS_LOCATION) 
     const getDownloadHandler = this.createLambda('get-download', LAMBDA_GET_DOWNLOAD_LOCATION) 
-
-    // POST /uploads
-    uploads.addMethod('POST',  new apigateway.LambdaIntegration(postUploadsHandler));  
-    // GET /uploads/{key} 
-    upload.addMethod('GET',  new apigateway.LambdaIntegration(getUploadHandler));   
 
     // POST /downloads
     downloads.addMethod('POST',  new apigateway.LambdaIntegration(postDownloadsHandler));   
@@ -166,7 +157,6 @@ export class FileShareServiceStack extends cdk.Stack {
     download.addMethod('GET',  new apigateway.LambdaIntegration(getDownloadHandler));   
 
     this.fileShareBucket.grantRead(postDownloadsHandler);
-    this.fileShareBucket.grantWrite(postUploadsHandler);
 
     const RUNTIME_CONFIG_FILE_NAME = "runtime-config.json";
     /** 

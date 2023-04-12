@@ -1,9 +1,6 @@
 import axios from "axios";
 import { useState, useRef, useEffect, CSSProperties } from "react";
 import "./URLShortenerForm.css";
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import CopyToClipboard from "react-copy-to-clipboard";
 import toast, { Toaster } from "react-hot-toast";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import PulseLoader  from "react-spinners/PulseLoader";
@@ -11,17 +8,9 @@ import { useContext } from "react";
 import { AppCtx } from "../index";
 
 function DownloaderForm() {
-  const [destination, setDestination] = useState();
-  const divRef = useRef<HTMLAnchorElement>(null);
+  const [accessKey, setAccessKey] = useState("");
   const [loading, setloading] = useState(true);
   const [backendLoading, setBackendLoading] = useState(false);
-  const [accessKey, setAccessKey] = useState("");
-  const [shortUrlPath, setShortUrlPath] = useState<{
-    path: string;
-  } | null>(null);
-  const [finalUrl, setFinalUrl] = useState<{
-    displayUrl: string;
-  } | null>(null);
   const appContext = useContext(AppCtx);
 
   useEffect(() => {
@@ -35,8 +24,6 @@ function DownloaderForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setShortUrlPath(null);
-    setFinalUrl(null);
     setBackendLoading(true);
 
     const apiClient = axios.create({
@@ -59,11 +46,10 @@ function DownloaderForm() {
       const href = URL.createObjectURL(res.data);
       const link = document.createElement('a');
       link.href = href;
-      link.setAttribute('download', result.data.filename); //or any other extension
+      link.setAttribute('download', result.data.filename);
       document.body.appendChild(link);
       link.click();
   
-      // clean up "a" element & remove ObjectURL
       document.body.removeChild(link);
       URL.revokeObjectURL(href);
     })
@@ -72,10 +58,6 @@ function DownloaderForm() {
     })
     setBackendLoading(false);
   }
-  var redirectURL = `${appContext?.apiEndpoint}urls/${shortUrlPath?.path}`;
-  const text = () => {
-    toast.success("Copied!");
-  };
 
   const override: CSSProperties = {
     display: "block",
@@ -106,7 +88,7 @@ function DownloaderForm() {
                 <input
                   className="input"
                   value={accessKey}
-                  onChange={(e: any) => setDestination(e.target.value)}
+                  onChange={(e: any) => setAccessKey(e.target.value)}
                 />
               </div>
               <button type="submit" className="button">
@@ -124,26 +106,6 @@ function DownloaderForm() {
               }} />
             )
           }
-
-          {shortUrlPath && (
-            <div className="link-div">
-              <p className="link">
-                <span>
-                  <a
-                    href={`${redirectURL}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    ref={divRef}
-                  >
-                    {finalUrl}
-                  </a>
-                </span>
-              </p>
-              <CopyToClipboard text={redirectURL}>
-                <ContentCopyRoundedIcon className="copyBtn" onClick={text} />
-              </CopyToClipboard>
-            </div>
-          )}
           <div className="name-div">
             <p className="name">
               Connect with Me on

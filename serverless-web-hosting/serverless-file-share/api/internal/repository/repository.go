@@ -17,15 +17,9 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	GlobalWriteReadCap    = 10
-	PartitionWriteReadCap = 10
-)
-
-// Repository interface allows us to access the CRUD Operations in dynamodb.
 type DynamoDbRepository interface {
-	GetUrl(urlType, path string) (*entities.Url, error)
-	CreateUrl(urlType string, entity *entities.Url) (*entities.Url, error)
+	GetAssetUrl(urlType, path string) (*entities.Asset, error)
+	CreateAssetUrl(urlType string, entity *entities.Asset) (*entities.Asset, error)
 }
 
 type dynamoDbRepository struct {
@@ -33,7 +27,6 @@ type dynamoDbRepository struct {
 	client *dynamodb.Client
 }
 
-// NewRepo is the single instance repo that is being created.
 func NewRepository(client *client.Client) DynamoDbRepository {
 	return &dynamoDbRepository{
 		table:  client.Table,
@@ -41,31 +34,55 @@ func NewRepository(client *client.Client) DynamoDbRepository {
 	}
 }
 
-func (r *dynamoDbRepository) GetUrl(urlType, path string) (*entities.Url, error) {
-	url, err := r.scanUrl(urlType, path)
+func (r *dynamoDbRepository) GetAssetUrl(urlType, path string) (*entities.Asset, error) {
+	url, err := r.scanAsset(urlType, path)
 	if err != nil {
 		zap.L().Error("unexpected error during getItem", zap.Error(err))
 		return nil, err
 	}
-	if isUrlValid(url) {
+	if isAssetUrlValid(url) {
+		var (
+			update = expression.Set(
+				expression.Name("HitCount"), expression.Value(1),
+			).Set(
+				expression.Name("Type"), expression.Value(urlType),
+			).Set(
+				expression.Name("State"), expression.Value(appTypes.STATE_INACTVE),
+			)
+			expr, _         = expression.NewBuilder().WithUpdate(update).Build()
+			updateItemInput = &dynamodb.UpdateItemInput{
+				TableName: r.table,
+				Key: map[string]types.AttributeValue{
+					appTypes.PK: &types.AttributeValueMemberS{Value: url.PK},
+					appTypes.SK: &types.AttributeValueMemberS{Value: url.SK},
+				},
+				ReturnValues:              types.ReturnValueAllNew,
+				UpdateExpression:          expr.Update(),
+				ExpressionAttributeValues: expr.Values(),
+				ExpressionAttributeNames:  expr.Names(),
+			}
+		)
+		zap.L().Info("updating hitcount and state of the asset")
+		_, err := r.client.UpdateItem(context.TODO(), updateItemInput)
+		if err != nil {
+			return nil, err
+		}
 		return url, nil
 	} else {
 		return nil, errors.New("url is not valid")
 	}
 }
 
-// CreateUrl is a dynamodb repository that helps to create new url entry
-func (r *dynamoDbRepository) CreateUrl(urlType string, entity *entities.Url) (*entities.Url, error) {
-	zap.L().Debug("Repository CreateUrl starts process")
-	url, err := r.findUrl(urlType, entity.PK)
+func (r *dynamoDbRepository) CreateAssetUrl(urlType string, entity *entities.Asset) (*entities.Asset, error) {
+	url, err := r.findAsset(urlType, entity.PK)
 	if err != nil {
 		zap.L().Error("unexpected error during getItem", zap.Error(err))
 		return nil, err
 	}
-	if !isUrlValid(url) {
-		zap.L().Debug(fmt.Sprintf("creating new url entity for path: %s", entity.PK))
+	if !isAssetUrlValid(url) {
+		zap.L().Debug(fmt.Sprintf("creating new asset entity for path: %s", entity.PK))
 		var (
-			newUrl = new(entities.Url)
+			newUrl = new(entities.Asset)
 			update = expression.Set(
 				expression.Name("AccessKey"), expression.Value(entity.AccessKey),
 			).Set(
@@ -112,9 +129,9 @@ func (r *dynamoDbRepository) CreateUrl(urlType string, entity *entities.Url) (*e
 	return url, nil
 }
 
-func (r *dynamoDbRepository) scanUrl(urlType, accessKey string) (*entities.Url, error) {
+func (r *dynamoDbRepository) scanAsset(urlType, accessKey string) (*entities.Asset, error) {
 	zap.L().Debug("call GetItem to check if given url exists in db")
-	urls := &[]entities.Url{}
+	urls := &[]entities.Asset{}
 	filter := expression.Name(appTypes.ATTRIBUTE_TYPE).Equal(expression.Value(urlType)).And(
 		expression.Name(appTypes.ATTRIBUTE_ACCESS_KEY).Equal(expression.Value(accessKey)),
 	)
@@ -143,9 +160,9 @@ func (r *dynamoDbRepository) scanUrl(urlType, accessKey string) (*entities.Url, 
 	return nil, errors.New("cannot find url with given path")
 }
 
-func (r *dynamoDbRepository) findUrl(urlType, path string) (*entities.Url, error) {
-	zap.L().Debug("call GetItem to check if given url exists in db")
-	urls := &[]entities.Url{}
+func (r *dynamoDbRepository) findAsset(urlType, path string) (*entities.Asset, error) {
+	zap.L().Debug("call GetItem to check if given asset exists in db")
+	urls := &[]entities.Asset{}
 	keyCondition := expression.Key(appTypes.PK).Equal(expression.Value(path))
 	filter := expression.Name(appTypes.ATTRIBUTE_TYPE).Equal(expression.Value(urlType))
 	expr, _ := expression.NewBuilder().WithKeyCondition(keyCondition).WithFilter(filter).Build()
@@ -176,16 +193,16 @@ func (r *dynamoDbRepository) findUrl(urlType, path string) (*entities.Url, error
 	return nil, nil
 }
 
-func isUrlValid(url *entities.Url) bool {
-	if url == nil {
+func isAssetUrlValid(asset *entities.Asset) bool {
+	if asset == nil {
 		zap.L().Info("url is not found")
 		return false
 	}
-	if isInThePast(url.ExpiringAt) {
+	if isInThePast(asset.ExpiringAt) {
 		zap.L().Info("given url is expired")
 		return false
 	} else {
-		if url.HitCount >= 1 {
+		if asset.HitCount >= 1 {
 			zap.L().Info("given url is used")
 			return false
 		} else {

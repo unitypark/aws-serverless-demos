@@ -6,31 +6,29 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Url is the presenter object which will be passed in the response by Handler
-type Url struct {
+// Asset is the presenter object which will be passed in the response by Handler
+type Asset struct {
 	Url       string `json:"url,omitempty"`
 	Filename  string `json:"filename,omitempty"`
 	AccessKey string `json:"accessKey,omitempty"`
 }
 
-func GetUrlSuccessResponse(data *entities.Url) *fiber.Map {
-	url := Url{
-		Url:      data.Url,
-		Filename: data.Filename,
-	}
+func GetUrlSuccessResponse(data *entities.Asset) *fiber.Map {
 	return &fiber.Map{
-		"data":  url,
+		"data": Asset{
+			Url:      data.Url,
+			Filename: data.Filename,
+		},
 		"error": nil,
 	}
 }
 
 // UrlSuccessResponse is the singular SuccessResponse that will be passed in the response by Handler
-func CreateUrlSuccessResponse(data *entities.Url) *fiber.Map {
-	url := Url{
-		AccessKey: data.AccessKey,
-	}
+func CreateUrlSuccessResponse(data *entities.Asset) *fiber.Map {
 	return &fiber.Map{
-		"data":  url,
+		"data": Asset{
+			AccessKey: data.AccessKey,
+		},
 		"error": nil,
 	}
 }

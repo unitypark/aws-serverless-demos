@@ -47,7 +47,7 @@ func GetDownloadUrl(service service.Service) fiber.Handler {
 func PostDownloadUrl(service service.Service) fiber.Handler {
 	zap.L().Debug("routing request to POST /downloads")
 	return func(c *fiber.Ctx) error {
-		var requestBody entities.PostUrlRequest
+		var requestBody entities.PostDownloadRequest
 		err := c.BodyParser(&requestBody)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
