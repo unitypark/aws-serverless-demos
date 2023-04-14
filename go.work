@@ -12,6 +12,5 @@ use (
 	./serverless-web-hosting/ecs-url-shortener-migration/api
 	./serverless-web-hosting/ecs-url-shortener-migration/customresource
 	./serverless-web-hosting/serverless-file-share/api
-	./serverless-web-hosting/serverless-file-share/customresource
 	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-consumer-api
 )

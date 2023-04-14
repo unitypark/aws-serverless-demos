@@ -17,6 +17,7 @@
     ]
   },
   "context": {
+    "'@aws-cdk/customresources:installLatestAwsSdkDefault": false,
     "@aws-cdk/core:newStyleStackSynthesis": true,
     "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
     "@aws-cdk/core:stackRelativeExports": true,

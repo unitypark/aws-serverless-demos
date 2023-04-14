@@ -41,7 +41,7 @@ func NewFileShareService(c *appConfig.Config, r repository.DynamoDbRepository) S
 // Url is a service layer that helps create url in DynamoDB Table
 func (s *service) CreateUrl(urlType, path string, expiringMinutes int) (*entities.Asset, error) {
 	if urlType == types.TYPE_DOWNLOAD {
-		url, err := s.createPresignedUrl(urlType, path, expiringMinutes)
+		url, err := s.createS3PresignedUrl(urlType, path, expiringMinutes)
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +70,7 @@ func (s *service) GetUrl(urlType, path string) (*entities.Asset, error) {
 	return url, nil
 }
 
-func (s *service) createPresignedUrl(urlType, path string, expiringMinutes int) (*string, error) {
+func (s *service) createS3PresignedUrl(urlType, path string, expiringMinutes int) (*string, error) {
 	cfg, _ := config.LoadDefaultConfig(context.TODO())
 	if s3Client == nil {
 		s3Client = s3.NewFromConfig(cfg)

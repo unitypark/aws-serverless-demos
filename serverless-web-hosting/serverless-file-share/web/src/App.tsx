@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import HomeContainer from "./containers/Home";
-import UploadContainer from "./containers/Uploader";
-import DownloadContainer from "./containers/Downloader";
+import DownloaderContainer from "./containers/Downloader";
 
 function App() {
   return (
@@ -10,11 +9,8 @@ function App() {
         <Route exact path="/">
           <HomeContainer />
         </Route>
-        <Route exact path="/uploads">
-          <UploadContainer />
-        </Route>
-        <Route exact path="/downloads">
-          <DownloadContainer />
+        <Route exact path="/downloader">
+          <DownloaderContainer />
         </Route>
       </Switch>
     </Router>
@@ -22,4 +18,3 @@ function App() {
 }
 
 export default App;
-  

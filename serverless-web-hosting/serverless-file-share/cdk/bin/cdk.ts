@@ -4,14 +4,17 @@ import { StaticSiteStack } from '../lib/static-site-stack';
 
 const app = new cdk.App();
 
-const staticSiteStack = new StaticSiteStack(app, 'file-share-static-site-stack', {
+const appPrefix = 'file-share'
+const edgeRegion = 'us-east-1';
+
+const staticSiteStack = new StaticSiteStack(app, appPrefix + '-static-site-stack', {
   //To be able to deploy Lamda@Edge requires explicitly setting the region.
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
   },
+  appPrefix: appPrefix,
+  edgeRegion: edgeRegion,
 })
 
-cdk.Tags.of(staticSiteStack).add("Project", "Sample File Share Service");
-
-app.synth();
+cdk.Tags.of(staticSiteStack).add("Project", "Demo File Share Service");

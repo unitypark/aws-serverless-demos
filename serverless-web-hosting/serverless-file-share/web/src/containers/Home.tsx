@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
-import UploaderForm from "../components/UploaderForm";
+import AdminForm from "../components/HomeForm";
 
-function Uploader() {
+function Home() {
   return (
     <Box
       height="100%"
@@ -10,9 +10,9 @@ function Uploader() {
       justifyContent="center"
       backgroundColor="white"
     >
-      <UploaderForm />
+      <AdminForm />
     </Box>
   );
 }
 
-export default Uploader;
+export default Home;

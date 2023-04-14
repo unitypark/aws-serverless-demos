@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useRef, useEffect, CSSProperties } from "react";
-import "./URLShortenerForm.css";
+import "./Form.css";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -10,7 +10,7 @@ import PulseLoader  from "react-spinners/PulseLoader";
 import { useContext } from "react";
 import { AppCtx } from "../index";
 
-function URLShortenerForm() {
+function AdminForm() {
   const [path, setPath] = useState();
   const divRef = useRef<HTMLAnchorElement>(null);
   const [loading, setloading] = useState(true);
@@ -42,7 +42,7 @@ function URLShortenerForm() {
     setResponse(result.data);
     setAccessKey(result.data.accessKey);
   }
-  var redirectURL = `${appContext?.origin}/downloads?key=${response?.accessKey}`;
+  var redirectURL = `${appContext?.origin}/downloader?key=${response?.accessKey}`;
   const text = () => {
     toast.success("Copied!");
   };
@@ -194,4 +194,4 @@ function URLShortenerForm() {
 
 }
 
-export default URLShortenerForm;
+export default AdminForm;

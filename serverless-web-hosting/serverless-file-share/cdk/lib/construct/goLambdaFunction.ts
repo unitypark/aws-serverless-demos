@@ -7,7 +7,7 @@ import { Construct } from 'constructs';
 export interface GoLambdaFunctionProps {
     name: string;
     entry: string;
-    environmentVariables: { [key: string]: string };
+    environmentVariables?: { [key: string]: string };
 }
 
 export class GoLambdaFunction extends Construct {
@@ -34,7 +34,7 @@ export class GoLambdaFunction extends Construct {
     });
     new logs.LogGroup(this, `${props.name}-log-group`, {
         logGroupName: `/aws/lambda/${this.fn.functionName}`,
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
         retention: logs.RetentionDays.ONE_DAY,
     });
   }
