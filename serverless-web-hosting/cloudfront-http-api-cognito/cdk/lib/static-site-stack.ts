@@ -371,7 +371,8 @@ export class StaticSiteStack extends cdk.Stack {
       name: `/${props.appPrefix}/cognito/userpool/domain`,
       value: cognito.cognitoDomain,
     });
-
+    
+    new cdk.CfnOutput(this, 'FileShareBucketName', { value: fileShareBucket.bucketName });
     new cdk.CfnOutput(this, 'CloudfrontAdminDistributionDomain', { value: distributionUrl });
     new cdk.CfnOutput(this, 'AdminUsername', { value: cognitoAdminRoleUser.username });
     new cdk.CfnOutput(this, 'AdminPassword', { value: cognitoAdminRoleUser.password });

@@ -141,7 +141,9 @@ cd serverless-web-hosting/cloudfront-http-api-cognito/ci
 chmod +x deploy.sh && ./deploy.sh <your_aws_profile_in_session_terminal>
 ```
 
-5. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution.
+5. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution and s3 bucket name for your sharing files.
+
+6. Please upload an object into the sharing file bucket before to test the application.
 
 You could login with both credentials, but if you want to generate an access key, you should login with admin credential to the application because of the authorizer.
 
