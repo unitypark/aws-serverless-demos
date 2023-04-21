@@ -190,6 +190,7 @@ export class StaticSiteStack extends cdk.Stack {
           // All other traffic is routed to an S3 bucket.
           behaviors: [
             {
+              defaultTtl: Duration.seconds(0),
               minTtl: Duration.seconds(0),
               maxTtl: Duration.seconds(1),
               pathPattern: "api/*",
@@ -211,6 +212,7 @@ export class StaticSiteStack extends cdk.Stack {
           },
           behaviors: [
             {
+              defaultTtl: Duration.seconds(0),
               minTtl: Duration.seconds(0),
               maxTtl: Duration.seconds(1),
               compress: true,
