@@ -109,12 +109,7 @@ Since this project can be tested complete locally, AWS is optional in this case.
 
 
 ## 🚀 Start Application Locally
-1. clone the repository
-```
-git clone https://github.com/unitypark/serverless-web-hosting.git
-```
-
-2. Run docker compose using script
+1. Run docker compose using script
 ```
 chmod +x ./localhost/docker-runner.sh && ./localhost/docker-runner.sh 
 ```
@@ -122,13 +117,13 @@ chmod +x ./localhost/docker-runner.sh && ./localhost/docker-runner.sh
 - API with go-fiber application will be hosted in port 8080
 - React Web Application will be hosted in port 3000
 
-3. Initialize your DynamoDB in Docker
+2. Initialize your DynamoDB in Docker
 ```
 chmod +x ./localhost/init-db.sh && ./localhost/init-db.sh
 ```
 - This will create a table NetworkStation and seed data of stations provided in assessment test.
 
-4. Open your browser and go to http://localhost:3000
+3. Open your browser and go to http://localhost:3000
 
 ## ✨ Architecture
 ![](./docs/arch.png)

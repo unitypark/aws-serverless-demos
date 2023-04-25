@@ -31,6 +31,10 @@ func init() {
 
 	fiberApp = fiber.New()
 	fiberApp.Use(cors.New())
+	fiberApp.Use(cors.New(cors.Config{
+		AllowOrigins:     config.Origin,
+		AllowCredentials: true,
+	}))
 	fiberApp.Use(logger.New())
 
 	fiberLambda = fiberadapter.New(fiberApp)

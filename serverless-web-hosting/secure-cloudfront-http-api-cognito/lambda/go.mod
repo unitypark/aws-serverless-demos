@@ -1,4 +1,4 @@
-module github.com/unitypark/serverless-web-hosting
+module github.com/unitypark/serverless-web-hosting/lambda
 
 go 1.19
 

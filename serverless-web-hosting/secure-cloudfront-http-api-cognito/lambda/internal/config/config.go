@@ -20,6 +20,7 @@ const (
 	ENV_TOKEN_ISSUER                = "ISS"
 	ENV_COGNITO_USER_POOL_CLIENT_ID = "COGNITO_USER_POOL_CLIENT_ID"
 	ENV_ADMIN_ROLE_NAME             = "ADMIN_ROLE_NAME"
+	ENV_ORIGIN                      = "ORIGIN"
 )
 
 type Config struct {
@@ -29,19 +30,23 @@ type Config struct {
 	TokenIss      string
 	TokenAud      string
 	AdminRoleName string
+	Origin        string
 }
 
 func New() *Config {
 	cfg := new(Config)
 	cfg.setEnv()
 	cfg.DbbTableName = os.Getenv(ENV_NETWORK_STATION_TABLE)
-	if len(cfg.DbbTableName) == 0 {
-		cfg.DbbTableName = LocalTableName
-	}
 	cfg.JwksUrl = os.Getenv(ENV_JWKS_URL)
 	cfg.TokenIss = os.Getenv(ENV_TOKEN_ISSUER)
 	cfg.TokenAud = os.Getenv(ENV_COGNITO_USER_POOL_CLIENT_ID)
 	cfg.AdminRoleName = os.Getenv(ENV_ADMIN_ROLE_NAME)
+	cfg.Origin = os.Getenv(ENV_ORIGIN)
+
+	if cfg.Env == Local {
+		cfg.DbbTableName = LocalTableName
+		cfg.Origin = "http://localhost:3000"
+	}
 	return cfg
 }
 

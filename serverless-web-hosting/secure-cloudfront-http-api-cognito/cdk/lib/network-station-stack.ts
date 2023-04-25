@@ -265,6 +265,7 @@ export class NetworkStationStack extends cdk.Stack {
       entry: LAMBDA_GET_NETWORK_STATIONS_LOCATION,
       environmentVariables: {
         'NETWORK_STATION_TABLE': ddbTable.tableName,
+        'ORIGIN': distributionUrl,
       }
     })
     const getFastestNetworkStationHandler = new GoLambdaFunction(this, props.appPrefix + '-get-fastest-network-station', {
@@ -272,6 +273,7 @@ export class NetworkStationStack extends cdk.Stack {
       entry: LAMBDA_GET_FASTEST_NEWORK_STATION_LOCATION,
       environmentVariables: {
         'NETWORK_STATION_TABLE': ddbTable.tableName,
+        'ORIGIN': distributionUrl,
       }
     })
     ddbTable.grantFullAccess(getNetworkStationsHandler.fn);
