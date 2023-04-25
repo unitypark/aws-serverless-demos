@@ -1,0 +1,94 @@
+{
+  "NetworkStation": [
+      {
+          "PutRequest": {
+              "Item": {
+                  "ID": {
+                      "S": "STATION#1"
+                  },
+                  "Latitude": {
+                      "N": "0"
+                  },
+                  "Longitude": {
+                      "N": "0"
+                  },
+                  "Reach": {
+                      "N": "9"
+                  }
+              }
+          }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+                "ID": {
+                    "S": "STATION#2"
+                },
+                "Latitude": {
+                    "N": "20"
+                },
+                "Longitude": {
+                    "N": "20"
+                },
+                "Reach": {
+                    "N": "6"
+                }
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+                "ID": {
+                    "S": "STATION#3"
+                },
+                "Latitude": {
+                    "N": "10"
+                },
+                "Longitude": {
+                    "N": "0"
+                },
+                "Reach": {
+                    "N": "12"
+                }
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+                "ID": {
+                    "S": "STATION#4"
+                },
+                "Latitude": {
+                    "N": "5"
+                },
+                "Longitude": {
+                    "N": "5"
+                },
+                "Reach": {
+                    "N": "13"
+                }
+            }
+        }
+      },
+      {
+        "PutRequest": {
+            "Item": {
+                "ID": {
+                    "S": "STATION#5"
+                },
+                "Latitude": {
+                    "N": "99"
+                },
+                "Longitude": {
+                    "N": "25"
+                },
+                "Reach": {
+                    "N": "2"
+                }
+            }
+        }
+      }
+  ]
+}
