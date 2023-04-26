@@ -80,7 +80,7 @@ $reachable = (x_{station}-x_{device})^2 + (y_{station}-y_{device})^2 < reach^2$,
 If device is in reachable area, then actual distance with square will be calculated to find network speed.
 
 ## 🚀 Application
-Application is secured by cognito and api is secured with its idToken. Especially the GET api/stations is only allowed to admin role user. 
+Application is secured by cognito and api is secured with cookie based authorizer. App should have set ***withCredentials=true**, so that cookie will be added into the request header. While server should set **Access-Control-Allow-Credentials: true** and **Access-Control-Allow-Origin=your_domain**. Our app requires CORS header for localhost, since api and app are hosted in another url locally (cross-origin requests), but our application will not encounter any CORS issue, because our frontend and backend are on the same domain using cloudfront behavior.  
 
 ### main page
 ![](./docs/main.png)
@@ -135,13 +135,22 @@ chmod +x ./localhost/init-db.sh && ./localhost/init-db.sh
 
 - A Cloudfront distribution has two origins. One is used for http api gateway and the other for web application origin.
 
-- Lambda Cookie Authorizer is attached to http apigateway to validate the **cookie**. It gets the cookie in request header and validates its idToken.
-
-- Tokens will be provided by Edge@Lambda function after sign in and it's values are saved in cookie with secure setting **(httpOnly=true, secure=true, sameSite=Lax)**, XSS attack protection.
-
-- Web Application will attach cookies in request header using **withCredentials=true**, XSS attack protection.
-
 - Once the user is authenticated via cognito, they can access the api over distribution's domain.
+
+## 🔥 Cookie Based Authorization
+The main reason you may want to do this is to add an additional layer of security to your application. In order to set the Authorization header client side with your credentials (usually with a JWT) you need to expose those credentials to the client and therefore risk those credentials being compromised via an XSS attack. Below describes how it could be implemented using Cloudfront, Edge Lambda and API Authorizer.
+
+- Tokens will be provided by Edge@Lambda function after sign in and it's values are saved in cookie with secure setting **(httpOnly=true, secure=true, sameSite=Lax)**.
+
+- Web Application will attach cookies in request header using **withCredentials=true** securely.
+
+- Lambda Cookie Authorizer is attached to http apigateway to validate the idToken from **cookie**.
+
+- In case of **cross-origin requests** between web app and api, api response should contain **Access-Control-Allow-Credentials: true** and **Access-Control-Allow-Origin=your_domain** to prevent CORS error.
+
+## 📚 How CloudFront solves CORS problems
+[Tamás](https://www.linkedin.com/in/sallait) has written nice article about CORS and Cloudfront. Shortly, *One domain means easier configuration and better security*
+- [how-cloudfront-solves-cors-problems](https://advancedweb.hu/how-cloudfront-solves-cors-problems/)
 
 
 ## ✨ DynamoDB Entity Structure
@@ -214,3 +223,5 @@ cdk destroy --all --require-approval never
 ☁️ [aws-apigateway-lambda-authorizer-blueprints](https://github.com/awslabs/aws-apigateway-lambda-authorizer-blueprints/blob/master/blueprints/go/main.goloaded-by-unauthenticated-users/)
 
 ☁️ [aaronosb/cookie-authorizer-example](https://github.com/aaronosb/cookie-authorizer-example)
+
+☁️ [how-cloudfront-solves-cors-problems](https://advancedweb.hu/how-cloudfront-solves-cors-problems/)

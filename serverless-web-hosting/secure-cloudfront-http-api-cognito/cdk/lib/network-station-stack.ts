@@ -194,8 +194,8 @@ export class NetworkStationStack extends cdk.Stack {
       maxTtl: Duration.seconds(1),
       enableAcceptEncodingBrotli: true,
       enableAcceptEncodingGzip: true,
-      cookieBehavior: CacheCookieBehavior.all(),
-      queryStringBehavior: CacheQueryStringBehavior.all(),
+      cookieBehavior: CacheCookieBehavior.none(),
+      queryStringBehavior: CacheQueryStringBehavior.none(),
     })
 
     const apiOriginCachePolicy = new CachePolicy(this, 'apiOriginCachePolicy', {
