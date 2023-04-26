@@ -190,7 +190,7 @@ npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualif
 
 2. Bootstrap your account with following command in us-east-1 region for edge lambda
 ```
-npx aws-cdk bootstrap aws://<YOUR_AWS_ACCOUNT_ID>/us-east-1
+npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualifier 'demo' --cloudformation-execution-policies 'arn:aws:iam::aws:policy/AdministratorAccess' aws://<YOUR_AWS_ACCOUNT_ID>/us-east-1
 ```
 
 3. Run deploy script
