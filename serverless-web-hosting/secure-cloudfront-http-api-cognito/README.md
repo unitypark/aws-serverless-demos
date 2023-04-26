@@ -176,26 +176,26 @@ Authorizer: CookieAuthorizer
 2. Get fastest network station information
 ```
 Method: GET
-Endpoint: api/stations/fastest?latitude=<pointX>&latitude=<pointY>
+Endpoint: api/stations/fastest?latitude=<pointX>&longitude=<pointY>
 Header: {Cookie: cookie value}
 Authorizer: CookieAuthorizer
 ```
 
 ## 🔥 Deploy
 
-1. Bootstrap your account with following command
+1. Bootstrap your account with following command in your deploying region
 ```
 npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualifier 'demo' --cloudformation-execution-policies 'arn:aws:iam::aws:policy/AdministratorAccess' aws://<YOUR_AWS_ACCOUNT_ID>/<REGION> 
 ```
 
-2. Change the working directory to ci's directory
+2. Bootstrap your account with following command in us-east-1 region for edge lambda
 ```
-cd ci
+npx aws-cdk bootstrap aws://<YOUR_AWS_ACCOUNT_ID>/us-east-1
 ```
 
-4. Run deploy script
+3. Run deploy script
 ```
-chmod +x deploy.sh && ./deploy.sh <your_aws_profile_in_session_terminal>
+chmod +x ./ci/deploy.sh && ./ci/deploy.sh <your_aws_profile_in_session_terminal>
 ```
 
 5. It will deploy all resources defined in architecture in your account. Init-Db lambda custom resource will populate the given data into the dynamoDb. 
