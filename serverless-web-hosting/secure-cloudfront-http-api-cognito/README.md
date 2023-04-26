@@ -200,9 +200,7 @@ chmod +x ./ci/deploy.sh && ./ci/deploy.sh <your_aws_profile_in_session_terminal>
 
 5. It will deploy all resources defined in architecture in your account. Init-Db lambda custom resource will populate the given data into the dynamoDb. 
 
-6. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution.
-
-You could login with both credentials, but if you want to call api endpoint **api/stations**, you should use the idToken from your admin account.
+6. Output will provide you the credentials of the user (username = client) as well as the domain of the cloudfront distribution.
 
 ## 🔨 Cleanup
 
