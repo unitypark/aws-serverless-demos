@@ -1,4 +1,4 @@
-module github.com/unitypark/serverless-web-hosting/lambda
+module github.com/unitypark/secure-cloudfront-http-api-cognito/lambda
 
 go 1.19
 

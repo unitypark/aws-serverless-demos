@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/lestrrat/go-jwx/jwk"
-	appConfig "github.com/unitypark/serverless-web-hosting/lambda/internal/config"
-	zapLogger "github.com/unitypark/serverless-web-hosting/lambda/internal/logger"
+	appConfig "github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/config"
+	zapLogger "github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/logger"
 	"go.uber.org/zap"
 )
 

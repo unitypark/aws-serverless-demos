@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/deloittepark/serverless-file-share/types"
 	"github.com/oklog/ulid"
+	"github.com/unitypark/cloudfront-http-api-cognito/types"
 )
 
 type Asset struct {

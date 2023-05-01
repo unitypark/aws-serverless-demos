@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/cfn"
-	"github.com/deloittepark/serverless-file-share-customresource/internal/service"
+	"github.com/unitypark/cloudfront-rest-api-customresource/internal/service"
 )
 
 type (

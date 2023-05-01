@@ -3,16 +3,16 @@ package main
 import (
 	"github.com/aws/aws-lambda-go/lambda"
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
-	"github.com/deloittepark/serverless-file-share/app/handler"
-	"github.com/deloittepark/serverless-file-share/app/router"
-	"github.com/deloittepark/serverless-file-share/internal/client"
-	appConfig "github.com/deloittepark/serverless-file-share/internal/config"
-	zapLogger "github.com/deloittepark/serverless-file-share/internal/logger"
-	"github.com/deloittepark/serverless-file-share/internal/repository"
-	"github.com/deloittepark/serverless-file-share/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/unitypark/cloudfront-rest-api/app/handler"
+	"github.com/unitypark/cloudfront-rest-api/app/router"
+	"github.com/unitypark/cloudfront-rest-api/internal/client"
+	appConfig "github.com/unitypark/cloudfront-rest-api/internal/config"
+	zapLogger "github.com/unitypark/cloudfront-rest-api/internal/logger"
+	"github.com/unitypark/cloudfront-rest-api/internal/repository"
+	"github.com/unitypark/cloudfront-rest-api/internal/service"
 	"go.uber.org/zap"
 )
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/unitypark/serverless-web-hosting/lambda/app/response"
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/service"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/app/response"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/service"
 	"go.uber.org/zap"
 
 	"github.com/gofiber/fiber/v2"

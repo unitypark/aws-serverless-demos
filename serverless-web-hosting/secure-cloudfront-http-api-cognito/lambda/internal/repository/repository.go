@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/client"
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/entities"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/client"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/entities"
 	"go.uber.org/zap"
 )
 

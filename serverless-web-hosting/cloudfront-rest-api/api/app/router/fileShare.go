@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/deloittepark/serverless-file-share/app/response"
-	"github.com/deloittepark/serverless-file-share/internal/entities"
-	"github.com/deloittepark/serverless-file-share/internal/service"
-	"github.com/deloittepark/serverless-file-share/types"
+	"github.com/unitypark/cloudfront-rest-api/app/response"
+	"github.com/unitypark/cloudfront-rest-api/internal/entities"
+	"github.com/unitypark/cloudfront-rest-api/internal/service"
+	"github.com/unitypark/cloudfront-rest-api/types"
 	"go.uber.org/zap"
 
 	"github.com/gofiber/fiber/v2"

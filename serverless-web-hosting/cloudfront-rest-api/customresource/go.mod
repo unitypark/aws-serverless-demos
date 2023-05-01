@@ -1,4 +1,4 @@
-module github.com/deloittepark/serverless-file-share-customresource
+module github.com/unitypark/cloudfront-rest-api-customresource
 
 go 1.19
 

@@ -11,9 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/deloittepark/serverless-file-share/internal/client"
-	"github.com/deloittepark/serverless-file-share/internal/entities"
-	appTypes "github.com/deloittepark/serverless-file-share/types"
+	"github.com/unitypark/cloudfront-rest-api/internal/client"
+	"github.com/unitypark/cloudfront-rest-api/internal/entities"
+	appTypes "github.com/unitypark/cloudfront-rest-api/types"
 	"go.uber.org/zap"
 )
 

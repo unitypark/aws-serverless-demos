@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/entities"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/entities"
 
 	"github.com/gofiber/fiber/v2"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/cfn"
-	"github.com/unitypark/serverless-web-hosting/customresource/internal/service"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/customresource/internal/service"
 )
 
 type (

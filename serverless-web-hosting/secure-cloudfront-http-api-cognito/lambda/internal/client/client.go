@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	appConfig "github.com/unitypark/serverless-web-hosting/lambda/internal/config"
+	appConfig "github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/config"
 	"go.uber.org/zap"
 
 	goConfig "github.com/aws/aws-sdk-go-v2/config"

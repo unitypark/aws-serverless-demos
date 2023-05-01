@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/unitypark/serverless-web-hosting/customresource/internal/config"
-	dynamodbService "github.com/unitypark/serverless-web-hosting/customresource/internal/dynamodb"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/customresource/internal/config"
+	dynamodbService "github.com/unitypark/secure-cloudfront-http-api-cognito/customresource/internal/dynamodb"
 )
 
 type (

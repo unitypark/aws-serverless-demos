@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/deloittepark/serverless-file-share/internal/entities"
+	"github.com/unitypark/cloudfront-rest-api/internal/entities"
 
 	"github.com/gofiber/fiber/v2"
 )

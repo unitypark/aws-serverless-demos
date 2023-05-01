@@ -8,10 +8,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	appConfig "github.com/deloittepark/serverless-file-share/internal/config"
-	zapLogger "github.com/deloittepark/serverless-file-share/internal/logger"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/lestrrat/go-jwx/jwk"
+	appConfig "github.com/unitypark/cloudfront-http-api-cognito/internal/config"
+	zapLogger "github.com/unitypark/cloudfront-http-api-cognito/internal/logger"
 	"go.uber.org/zap"
 )
 

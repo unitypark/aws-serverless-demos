@@ -1,4 +1,4 @@
-module github.com/unitypark/serverless-web-hosting/customresource
+module github.com/unitypark/secure-cloudfront-http-api-cognito/customresource
 
 go 1.18
 

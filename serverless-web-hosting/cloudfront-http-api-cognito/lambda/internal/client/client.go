@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	appConfig "github.com/deloittepark/serverless-file-share/internal/config"
+	appConfig "github.com/unitypark/cloudfront-http-api-cognito/internal/config"
 	"go.uber.org/zap"
 
 	goConfig "github.com/aws/aws-sdk-go-v2/config"

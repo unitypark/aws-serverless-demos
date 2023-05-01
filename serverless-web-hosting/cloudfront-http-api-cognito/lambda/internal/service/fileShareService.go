@@ -7,9 +7,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	appConfig "github.com/deloittepark/serverless-file-share/internal/config"
-	"github.com/deloittepark/serverless-file-share/internal/entities"
-	"github.com/deloittepark/serverless-file-share/internal/repository"
+	appConfig "github.com/unitypark/cloudfront-http-api-cognito/internal/config"
+	"github.com/unitypark/cloudfront-http-api-cognito/internal/entities"
+	"github.com/unitypark/cloudfront-http-api-cognito/internal/repository"
 	"go.uber.org/zap"
 )
 

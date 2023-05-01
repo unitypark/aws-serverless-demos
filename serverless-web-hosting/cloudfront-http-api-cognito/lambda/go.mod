@@ -1,4 +1,4 @@
-module github.com/deloittepark/serverless-file-share
+module github.com/unitypark/cloudfront-http-api-cognito
 
 go 1.19
 

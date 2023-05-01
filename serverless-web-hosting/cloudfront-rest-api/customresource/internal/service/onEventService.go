@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/cfn"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/deloittepark/serverless-file-share-customresource/internal/config"
-	s3Service "github.com/deloittepark/serverless-file-share-customresource/internal/s3"
+	"github.com/unitypark/cloudfront-rest-api-customresource/internal/config"
+	s3Service "github.com/unitypark/cloudfront-rest-api-customresource/internal/s3"
 	"go.uber.org/zap"
 )
 

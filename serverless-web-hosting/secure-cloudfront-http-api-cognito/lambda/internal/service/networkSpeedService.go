@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
-	appConfig "github.com/unitypark/serverless-web-hosting/lambda/internal/config"
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/entities"
-	"github.com/unitypark/serverless-web-hosting/lambda/internal/repository"
+	appConfig "github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/config"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/entities"
+	"github.com/unitypark/secure-cloudfront-http-api-cognito/lambda/internal/repository"
 	"go.uber.org/zap"
 )
 

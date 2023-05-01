@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/deloittepark/serverless-file-share/app/response"
-	"github.com/deloittepark/serverless-file-share/internal/entities"
-	"github.com/deloittepark/serverless-file-share/internal/service"
+	"github.com/unitypark/cloudfront-http-api-cognito/app/response"
+	"github.com/unitypark/cloudfront-http-api-cognito/internal/entities"
+	"github.com/unitypark/cloudfront-http-api-cognito/internal/service"
 	"go.uber.org/zap"
 
 	"github.com/gofiber/fiber/v2"
