@@ -131,19 +131,24 @@ git clone https://github.com/unitypark/aws-serverless-demos.git
 npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualifier 'demo' --cloudformation-execution-policies 'arn:aws:iam::aws:policy/AdministratorAccess' aws://<YOUR_AWS_ACCOUNT_ID>/<REGION> 
 ```
 
-3. Change the working directory to ci's directory
+3. Bootstrap your account with following command in us-east-1 region for edge lambda
+```
+npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualifier 'demo' --cloudformation-execution-policies 'arn:aws:iam::aws:policy/AdministratorAccess' aws://<YOUR_AWS_ACCOUNT_ID>/us-east-1
+```
+
+4. Change the working directory to ci's directory
 ```
 cd serverless-web-hosting/cloudfront-http-api-cognito/ci
 ```
 
-4. Run deploy script
+5. Run deploy script
 ```
 chmod +x deploy.sh && ./deploy.sh <your_aws_profile_in_session_terminal>
 ```
 
-5. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution and s3 bucket name for your sharing files.
+6. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution and s3 bucket name for your sharing files.
 
-6. Please upload an object into the sharing file bucket before to test the application.
+7. Please upload an object into the sharing file bucket before to test the application.
 
 You could login with both credentials, but if you want to generate an access key, you should login with admin credential to the application because of the authorizer.
 
