@@ -1,0 +1,220 @@
+.Recieve {
+    height: auto;
+    margin: 0 0 0 0;
+    padding: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+.imgPanel {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.Recieve * {
+    margin-top: 30px;
+}
+
+.ContentPanel {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    flex-direction: column;
+    width: 100%;
+}
+
+.contentPanelElements {
+    width: 80%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#input {
+    width: 85%;
+    height: 50px;
+    font-size: 20px;
+    outline: none;
+    border: 1px solid black;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#download {
+    border-radius: 5rem;
+    height: 3.7rem;
+    width: 45%;
+    border: none;
+    font-size: 1.7rem;
+    color: white;
+    background-color: #6125ac;
+    margin-top: 15px;
+    outline: none;
+}
+
+#download:hover {
+    background-color: #572199;
+}
+
+#statusIndicator {
+    margin-top: 20px;
+    width: 250px;
+    height: 30px;
+    appearance: none;
+}
+
+progress[value]::-webkit-progress-value {
+    background-image: -webkit-linear-gradient(-45deg,
+            transparent 33%,
+            rgba(0, 0, 0, 0.1) 33%,
+            rgba(0, 0, 0, 0.1) 66%,
+            transparent 66%),
+        -webkit-linear-gradient(top, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.25)),
+        -webkit-linear-gradient(left, rgb(174, 33, 209), #6125ac);
+    border-radius: 2px;
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+#alertRecieve {
+    display: none;
+    z-index: 5;
+    position: absolute;
+    top: 75%;
+    left: 30%;
+    right: 30%;
+    padding: 10px 0;
+    border-radius: 5px;
+    color: #721c24;
+    background-color: #f8d7da;
+    text-align: center;
+}
+
+.URLdisplay {
+    width: 85%;
+    border: 1px solid black;
+    background-color: rgb(248, 248, 248);
+    border-radius: 5px;
+    padding: 10px;
+    height: auto;
+}
+
+#URLdisplaylist {
+    width: 100%;
+    height: auto;
+    text-align: center;
+}
+
+#URLdisplaylist li {
+    list-style: none;
+    color: rgb(78, 78, 78);
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgb(214, 213, 213);
+    font-size: 15px;
+}
+
+#URLdisplaylist img {
+    margin-top: 0px;
+}
+
+a:link {
+    color: #57209b;
+}
+
+a:active {
+    color: #57209b;
+}
+
+a:visited {
+    color: #57209b;
+}
+
+li:hover a {
+    color: #421974;
+}
+
+@media only screen and (max-width: 767px) {
+    body {
+        padding-bottom: 30px;
+    }
+
+    .Recieve {
+        height: auto;
+        margin: 0 0 30px 0;
+        padding: 0;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: auto auto;
+    }
+
+    .imgPanel {
+        grid-column-start: 1;
+        grid-column-end: 2;
+        grid-row-start: 1;
+        grid-row-end: 2;
+        align-items: center;
+    }
+
+    .Recieve * {
+        margin-top: 15px;
+    }
+
+    .ContentPanel {
+        grid-column-start: 1;
+        grid-column-end: 2;
+        grid-row-start: 2;
+        grid-row-end: 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #input {
+        font-size: 10px;
+        margin-top: 30px;
+    }
+
+    #input::placeholder {
+        font-size: 20px;
+    }
+
+    .recieveImage {
+        width: 280px;
+        height: 237px;
+        margin-top: 0;
+    }
+
+    .contentPanelElements {
+        margin-top: 0;
+    }
+
+    .ContentPanel {
+        margin-top: 0;
+    }
+
+    .imgPanel {
+        margin-top: 0;
+    }
+
+    .downloadImage {
+        width: 100px;
+    }
+
+    #download {
+        margin-top: 30px;
+        font-size: 20px;
+        width: 150px;
+    }
+
+    #alertRecieve {
+        left: 5%;
+        right: 5%;
+    }
+}

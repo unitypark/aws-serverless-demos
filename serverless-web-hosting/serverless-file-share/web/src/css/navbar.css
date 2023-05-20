@@ -1,0 +1,27 @@
+.Brand {
+    border: 1px solid #6125ac;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.Nav-item {
+    margin-left: 30px;
+    border-bottom: none;
+}
+
+.Nav-item:hover {
+    border-top: 1.5px solid #4d1d86;
+}
+
+.Nav-elements {
+    color: #4d1d86;
+    font-size: 25px;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+@media only screen and (max-width: 767px) {
+    .Nav-item {
+        display: none;
+    }
+}

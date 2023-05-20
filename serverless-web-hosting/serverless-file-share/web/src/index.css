@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 20px !important;
+    font-family: 'Roboto', sans-serif !important;
+}
+.App {
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    height: auto;
+}
+@media only screen and (max-width: 767px) {
+    .App {
+        width: 100%;
+        height: auto;
+    }
+}
