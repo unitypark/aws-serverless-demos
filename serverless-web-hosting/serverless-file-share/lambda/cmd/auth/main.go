@@ -23,7 +23,7 @@ const (
 
 var (
 	config      *appConfig.Config
-	cookieRegex = regexp.MustCompile(`idToken=(.+?)(;)`)
+	cookieRegex = regexp.MustCompile(`accessToken=(.+?)(;)`)
 )
 
 func init() {
@@ -71,8 +71,7 @@ func generateResponse(isAuthorized bool, mapClaims jwt.MapClaims) events.APIGate
 	return events.APIGatewayV2CustomAuthorizerSimpleResponse{
 		IsAuthorized: isAuthorized,
 		Context: map[string]interface{}{
-			"username": mapClaims["cognito:username"],
-			"role":     mapClaims["custom:role"],
+			"username": mapClaims["username"],
 		},
 	}
 }
