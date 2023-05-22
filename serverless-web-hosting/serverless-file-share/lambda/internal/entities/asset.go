@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/oklog/ulid"
-	"github.com/unitypark/cloudfront-http-api-cognito/types"
+	"github.com/unitypark/serverless-file-share/lambda/types"
 )
 
 type Asset struct {
@@ -29,7 +29,19 @@ type PostDownloadRequest struct {
 	Username string `json:"username"`
 }
 
-func (u *Asset) InitNewAsset(path, url, username string, expiringMinutes int) {
+func (u *Asset) InitNewUploadAsset(path, url string, expiringMinutes int) {
+	currentUTCTime := GetCurrentUTCTime()
+	ulid := GetUlid(currentUTCTime)
+
+	u.PK = path
+	u.SK = ulid
+	u.Filename = filepath.Base(path)
+	u.Url = url
+	u.CreatedAt = currentUTCTime.Format(types.TIME_FORMAT)
+	u.ExpiringAt = GetExtendedTime(currentUTCTime, expiringMinutes).Format(types.TIME_FORMAT)
+}
+
+func (u *Asset) InitNewDownloadAsset(path, url, username string, expiringMinutes int) {
 	currentUTCTime := GetCurrentUTCTime()
 	ulid := GetUlid(currentUTCTime)
 

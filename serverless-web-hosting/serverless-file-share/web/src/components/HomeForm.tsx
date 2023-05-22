@@ -9,38 +9,52 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useContext } from "react";
 import { AppCtx } from "../App";
+import { DropzoneDialog } from 'material-ui-dropzone';
 
 function AdminForm() {
-  const [path, setPath] = useState();
+  const [folder, setFolder] = useState();
   const divRef = useRef<HTMLAnchorElement>(null);
   const [loading, setloading] = useState(true);
   const [backendLoading, setBackendLoading] = useState(false);
   const [forks, setforks] = useState(0);
   const [stars, setstars] = useState(0);
+  const [openDropZone, setOpenDropZone] = useState(false);
   const [response, setResponse] = useState<{ username: string, role: string, accessKey: string } | null>(null);
   const appContext = useContext(AppCtx);
 
   const apiClient = axios.create({
     baseURL: appContext?.origin,
-    headers: {
-      Authorization: appContext?.idToken,
-    }
+    withCredentials: true,
   });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(files: File[]) {
     setResponse(null);
     setBackendLoading(true);
-    await apiClient
-      .post(`/api/downloads`, { username: appContext.username, path: path })
-      .then((resp) => resp.data)
-      .then((res) => {
-        setResponse(res.data);
-        toast.success("Download URL is ready!");
-      })
-      .catch((err) => {
-        toast.error("Something went wrong");
-      });
+
+    let unixTimestampInSeconds = Math.floor(Date.now() / 1000)
+    let path = `${folder}/${unixTimestampInSeconds}/${files[0].name}`.replace(/\s/g, "").toLowerCase();
+
+    const postUploadsRes = await apiClient.post(`/api/uploads`, { username: appContext.username, path: path })
+    // PUT request: upload file to S3
+    const result = await fetch(postUploadsRes.data.data.url, {
+      method: "PUT",
+      body: files[0],
+    });
+
+    if (result.status === 200) {
+      await apiClient
+        .post(`/api/downloads`, { username: appContext.username, path: path })
+        .then((resp) => resp.data)
+        .then((res) => {
+          setResponse(res.data);
+          toast.success("Download URL is ready!");
+        })
+        .catch((err) => {
+          toast.error("Something went wrong");
+        });
+    } else {
+      toast.error("Upload failed");
+    }
     setBackendLoading(false);
   }
   var redirectURL = `${appContext?.origin}/downloader?key=${response?.accessKey}`;
@@ -63,10 +77,12 @@ function AdminForm() {
       // setting current user information
       appContext.username = user.username;
       appContext.role = user.role;
-
-      if (user.role === "ADMIN") {
+      appContext.isAdmin = user.isAdmin;
+      if (user.isAdmin === true) {
         setloading(false);
       }
+    } else {
+      toast.error("Something wrong while configuration!");
     }
   }
 
@@ -84,14 +100,12 @@ function AdminForm() {
   };
 
   if (!loading) {
-
     return (
       <>
         <div className="outer">
           <div>
             <Toaster />
           </div>
-
 
           <div className="head-div">
             <p className="head">
@@ -129,34 +143,37 @@ function AdminForm() {
               </div>
             </div>
           </div>
-          {/* <div className="outer">
-            <form className="form" onSubmit={handleSubmit}>
+          <DropzoneDialog
+            filesLimit={1}
+            dialogTitle={"Select single file to upload"}
+            cancelButtonText={"cancel"}
+            submitButtonText={"submit"}
+            maxFileSize={2e+9}
+            fullWidth={true}
+            open={openDropZone}
+            onClose={() => setOpenDropZone(false)}
+            onSave={(files) => {
+              handleSubmit(files)
+              setOpenDropZone(false);
+            }}
+            showPreviews={true}
+            showPreviewsInDropzone={false}
+            useChipsForPreview
+          />
+          <div className="outer">
+            <div className="form">
               <div>
                 <input
                   className="input"
-                  placeholder="Enter Uploading Path"
-                  onChange={(e: any) => setDestination(e.target.value)}
+                  placeholder="e.g. folder/subfolder"
+                  required={true}
+                  onChange={(e: any) => setFolder(e.target.value)}
                 />
               </div>
-              <button type="submit" className="allowButton">
+              <button type="submit" className="button" onClick={() => setOpenDropZone(true)}>
                 upload
               </button>
-            </form>
-          </div> */}
-
-          <div className="outer">
-            <form className="form" onSubmit={handleSubmit}>
-              <div>
-                <input
-                  className="input"
-                  placeholder="e.g. folder/sub/sample.zip"
-                  onChange={(e: any) => setPath(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="button">
-                generate!
-              </button>
-            </form>
+            </div>
           </div>
 
           {

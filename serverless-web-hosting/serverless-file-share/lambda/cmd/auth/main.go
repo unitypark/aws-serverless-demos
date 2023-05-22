@@ -12,18 +12,14 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/lestrrat/go-jwx/jwk"
-	appConfig "github.com/unitypark/cloudfront-http-api-cognito/internal/config"
-	zapLogger "github.com/unitypark/cloudfront-http-api-cognito/internal/logger"
+	appConfig "github.com/unitypark/serverless-file-share/lambda/internal/config"
+	zapLogger "github.com/unitypark/serverless-file-share/lambda/internal/logger"
 	"go.uber.org/zap"
-)
-
-const (
-	ALLOWED_API_METHOD string = "GET"
 )
 
 var (
 	config      *appConfig.Config
-	cookieRegex = regexp.MustCompile(`accessToken=(.+?)(;)`)
+	cookieRegex = regexp.MustCompile(`idToken=(.+?)(;)`)
 )
 
 func init() {
@@ -37,22 +33,23 @@ func main() {
 }
 
 func handler(ctx context.Context, req events.APIGatewayV2CustomAuthorizerV2Request) (events.APIGatewayV2CustomAuthorizerSimpleResponse, error) {
+	isAdmin := false
 	authHeader := findAuthHeader(req.Headers, []string{"cookie", "Cookie"})
 	extractedIdTokenCookie := cookieRegex.FindString(authHeader)
 	if extractedIdTokenCookie == "" {
 		zap.L().Info("id token is missing")
-		return generateResponse(false, nil), nil
+		return generateResponse(false, isAdmin, nil), nil
 	}
 
 	idTokenCookie := strings.TrimSuffix(extractedIdTokenCookie, ";")
 	idTokenValue := strings.Split(idTokenCookie, "=")[1]
 
-	mapClaims, err := validateIdToken(idTokenValue)
+	mapClaims, isAdmin, err := validateIdToken(idTokenValue, isAdmin)
 	if err != nil {
 		zap.L().Error("authorizatoin failed", zap.Error(err))
-		return generateResponse(false, mapClaims), nil
+		return generateResponse(false, isAdmin, mapClaims), nil
 	}
-	return generateResponse(true, mapClaims), nil
+	return generateResponse(true, isAdmin, mapClaims), nil
 }
 
 func findAuthHeader(headers map[string]string, authHeaderNames []string) string {
@@ -67,16 +64,18 @@ func findAuthHeader(headers map[string]string, authHeaderNames []string) string 
 }
 
 // Help function to generate an IAM policy
-func generateResponse(isAuthorized bool, mapClaims jwt.MapClaims) events.APIGatewayV2CustomAuthorizerSimpleResponse {
+func generateResponse(isAuthorized, isAdmin bool, mapClaims jwt.MapClaims) events.APIGatewayV2CustomAuthorizerSimpleResponse {
 	return events.APIGatewayV2CustomAuthorizerSimpleResponse{
 		IsAuthorized: isAuthorized,
 		Context: map[string]interface{}{
-			"username": mapClaims["username"],
+			"username": mapClaims["cognito:username"],
+			"role":     mapClaims["custom:role"],
+			"isAdmin":  isAdmin,
 		},
 	}
 }
 
-func validateIdToken(token string) (jwt.MapClaims, error) {
+func validateIdToken(token string, isAdmin bool) (jwt.MapClaims, bool, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		set, err := jwk.FetchHTTP(config.JwksUrl)
 		if err != nil {
@@ -94,31 +93,35 @@ func validateIdToken(token string) (jwt.MapClaims, error) {
 		return nil, errors.New("unable to find key")
 	})
 	if err != nil {
-		return nil, err
+		return nil, isAdmin, err
 	}
 	if err != nil {
-		return nil, err
+		return nil, isAdmin, err
 	}
 	mapClaims := parsedToken.Claims.(jwt.MapClaims)
 	// validate "iat"
 	checkIat := mapClaims.VerifyIssuedAt(time.Now().Unix(), true)
 	if !checkIat {
-		return nil, fmt.Errorf("token issued at error")
+		return nil, isAdmin, fmt.Errorf("token issued at error")
 	}
 	// validate "exp"
 	checkExp := mapClaims.VerifyExpiresAt(time.Now().Unix(), true)
 	if !checkExp {
-		return nil, fmt.Errorf("token expired")
+		return nil, isAdmin, fmt.Errorf("token expired")
 	}
 	// validate "iss"
 	checkIss := mapClaims.VerifyIssuer(config.TokenIss, true)
 	if !checkIss {
-		return nil, fmt.Errorf("invalid issuer")
+		return nil, isAdmin, fmt.Errorf("invalid issuer")
 	}
 	// validate "aud"
 	checkAud := mapClaims.VerifyAudience(config.TokenAud, true)
 	if !checkAud {
-		return nil, fmt.Errorf("invalid audience")
+		return nil, isAdmin, fmt.Errorf("invalid audience")
 	}
-	return mapClaims, nil
+	customRole := mapClaims["custom:role"].(string)
+	if customRole == config.AdminRoleName {
+		isAdmin = true
+	}
+	return mapClaims, isAdmin, nil
 }

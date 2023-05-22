@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	appConfig "github.com/unitypark/cloudfront-http-api-cognito/internal/config"
+	appConfig "github.com/unitypark/serverless-file-share/lambda/internal/config"
 )
 
 // It initialize a default global zap logger in service

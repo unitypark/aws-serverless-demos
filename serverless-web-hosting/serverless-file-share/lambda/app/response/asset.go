@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/unitypark/cloudfront-http-api-cognito/internal/entities"
+	"github.com/unitypark/serverless-file-share/lambda/internal/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,6 +9,7 @@ import (
 type User struct {
 	Username string `json:"username,omitempty"`
 	Role     string `json:"role,omitempty"`
+	IsAdmin  bool   `json:"isAdmin,omitempty"`
 }
 
 // Asset is the presenter object which will be passed in the response by Handler
@@ -33,6 +34,7 @@ func UrlSuccessResponse(data *entities.Asset) *fiber.Map {
 			User: User{
 				Username: "",
 				Role:     "",
+				IsAdmin:  false,
 			},
 		},
 		"error": nil,

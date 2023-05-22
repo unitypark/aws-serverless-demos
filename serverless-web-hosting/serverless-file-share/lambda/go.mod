@@ -1,4 +1,4 @@
-module github.com/unitypark/cloudfront-http-api-cognito
+module github.com/unitypark/serverless-file-share/lambda
 
 go 1.19
 

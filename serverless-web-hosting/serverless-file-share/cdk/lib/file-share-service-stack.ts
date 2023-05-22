@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { CfnDistribution, CloudFrontAllowedCachedMethods, CloudFrontAllowedMethods, CloudFrontWebDistribution, Distribution, KeyGroup, LambdaEdgeEventType, OriginAccessIdentity, PublicKey, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, CfnDistribution, CloudFrontAllowedCachedMethods, CloudFrontAllowedMethods, CloudFrontWebDistribution, Distribution, EdgeLambda, ErrorResponse, KeyGroup, LambdaEdgeEventType, OriginAccessIdentity, PublicKey, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import path = require('path');
@@ -15,6 +15,7 @@ import { NodeLambdaEdgeFunction } from './construct/edge-lambda';
 import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType, HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
+import { HttpOrigin, RestApiOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 
 enum HttpStatus {
   OK = 200,
@@ -43,6 +44,7 @@ export class FileShareServiceStack extends cdk.Stack {
 
     const LAMBDA_PREFIX = '../lambda/cmd'
     const LAMBDA_GET_CONFIG_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/getConfig/main.go`
+    const LAMBDA_POST_UPLOADS_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/postUploads/main.go`
     const LAMBDA_POST_DOWNLOADS_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/postDownloads/main.go`
     const LAMBDA_GET_DOWNLOAD_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/getDownload/main.go`
     const LAMBDA_API_AUTHORIZER_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.AUTH}/main.go`
@@ -100,7 +102,6 @@ export class FileShareServiceStack extends cdk.Stack {
     */
     const httpApi = new HttpApi(this, props.appPrefix + '-http-api', {
       description: props.appPrefix + '-http-api',
-      //TODO: update authrozation, admin => cognito authorizer, non-admin => x-origin-verify
       // https://aws.amazon.com/blogs/networking-and-content-delivery/restricting-access-http-api-gateway-lambda-authorizer/ 
       createDefaultStage: true,
       corsPreflight: {
@@ -156,79 +157,81 @@ export class FileShareServiceStack extends cdk.Stack {
     });
     webSiteBucket.grantRead(cloudfrontOAI);
 
-    const errorResponse403: CfnDistribution.CustomErrorResponseProperty = {
-      errorCode: HttpStatus.Unauthorized,
-      // the properties below are optional
-      responseCode: HttpStatus.OK,
-      responsePagePath: '/index.html',
-      errorCachingMinTtl: 0,
+    const errorResponse403: ErrorResponse = {
+      httpStatus: HttpStatus.Unauthorized,
+      responseHttpStatus: HttpStatus.OK,
+      responsePagePath: "/index.html",
+      ttl: Duration.seconds(0),
+    };
+    const errorResponse404: ErrorResponse = {
+      httpStatus: HttpStatus.NotFound,
+      responseHttpStatus: HttpStatus.OK,
+      responsePagePath: "/index.html",
+      ttl: Duration.seconds(0),
     };
 
-    const errorResponse404: CfnDistribution.CustomErrorResponseProperty = {
-      errorCode: HttpStatus.NotFound,
-      // the properties below are optional
-      responseCode: HttpStatus.OK,
-      responsePagePath: '/index.html',
-      errorCachingMinTtl: 0,
-    };
-
-    /**
-     * Distribution for Admin Origin
-     */    
-    const distribution = new CloudFrontWebDistribution(this, props.appPrefix + '-distribution', {
-      comment: props.appPrefix + '-distribution',
-      errorConfigurations: [errorResponse403, errorResponse404],
-      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      defaultRootObject: 'index.html',
-      originConfigs: [
-        {
-          customOriginSource: {
-            domainName: `${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`,
-          },
-          // Any URLs that have a path beginning with /api/ are routed to an API Gateway, 
-          // which integrates with Lambda Functions which are written in Golang. 
-          // All other traffic is routed to an S3 bucket.
-          behaviors: [
-            {
-              defaultTtl: Duration.seconds(0),
-              minTtl: Duration.seconds(0),
-              maxTtl: Duration.seconds(1),
-              pathPattern: "api/*",
-              allowedMethods: CloudFrontAllowedMethods.ALL,
-              cachedMethods: CloudFrontAllowedCachedMethods.GET_HEAD,
-              forwardedValues: {
-                queryString: true,
-                // By default CloudFront will not forward any headers through.
-                // so if your API needs authentication make sure you forward auth headers across
-                headers: ["Authorization", "authorization"], 
-              },
-            },
-          ],
-        },
-        {
-          s3OriginSource: {
-            s3BucketSource: webSiteBucket,
-            originAccessIdentity: cloudfrontOAI,
-          },
-          behaviors: [
-            {
-              defaultTtl: Duration.seconds(0),
-              minTtl: Duration.seconds(0),
-              maxTtl: Duration.seconds(1),
-              compress: true,
-              isDefaultBehavior: true,
-              allowedMethods: CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-              lambdaFunctionAssociations: [
-                {
-                  lambdaFunction: authLambda.fn,
-                  eventType: LambdaEdgeEventType.VIEWER_REQUEST,
-                },
-              ],
-            },
-          ],
-        }
-      ],      
+    const webOriginCachePolicy = new CachePolicy(this, "web-origin-cache-policy", {
+      cachePolicyName: `${props.appPrefix}-web-origin-cache-policy`,
+      comment: "web origin cache policy in distritbution",
+      defaultTtl: Duration.seconds(0),
+      minTtl: Duration.seconds(0),
+      maxTtl: Duration.seconds(1),
+      enableAcceptEncodingBrotli: true,
+      enableAcceptEncodingGzip: true,
+      cookieBehavior: CacheCookieBehavior.none(),
+      queryStringBehavior: CacheQueryStringBehavior.none(),
     });
+
+    const apiOriginCachePolicy = new CachePolicy(this, "api-origin-cache-policy", {
+      cachePolicyName: `${props.appPrefix}-api-origin-cache-policy`,
+      comment: "api origin cache policy in distritbution",
+      defaultTtl: Duration.seconds(0),
+      minTtl: Duration.seconds(0),
+      maxTtl: Duration.seconds(1),
+      enableAcceptEncodingBrotli: true,
+      enableAcceptEncodingGzip: true,
+      cookieBehavior: CacheCookieBehavior.all(),
+      queryStringBehavior: CacheQueryStringBehavior.all(),
+    });
+
+    const viewerRequestEdgeLambda: EdgeLambda = {
+      eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+      functionVersion: authLambda.fn.currentVersion,
+    };
+
+    
+    /**
+     * Distribution
+     */    
+    const distribution = new Distribution(
+      this,
+      `${props.appPrefix}-CloudFrontWebDistribution`,
+      {
+        comment: `${props.appPrefix}-distribution`,
+        defaultRootObject: "index.html",
+        errorResponses: [errorResponse403, errorResponse404],
+        defaultBehavior: {
+          origin: new S3Origin(webSiteBucket, {
+            originAccessIdentity: cloudfrontOAI,
+          }),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          compress: true,
+          edgeLambdas: [viewerRequestEdgeLambda],
+          cachePolicy: webOriginCachePolicy,
+        },
+        additionalBehaviors: {
+          "api/*": {
+            origin: new HttpOrigin(`${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`),
+            viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+            allowedMethods: AllowedMethods.ALLOW_ALL,
+            compress: true,
+            cachedMethods: CachedMethods.CACHE_GET_HEAD,
+            cachePolicy: apiOriginCachePolicy,
+          },
+        },
+      }
+    );
     const distributionUrl = `https://${distribution.distributionDomainName}`;
 
     cognito.addClient('userPool-app-client', [
@@ -284,6 +287,17 @@ export class FileShareServiceStack extends cdk.Stack {
       entry: LAMBDA_GET_CONFIG_LOCATION,
     });
 
+    const postUploadsHandler = new GoLambdaFunction(this, props.appPrefix + '-post-uploads', {
+      name: props.appPrefix + '-post-uploads',
+      entry: LAMBDA_POST_UPLOADS_LOCATION,
+      environmentVariables: {
+        'URL_TABLE': ddbTable.tableName,
+        'FILE_SHARE_BUCKET': fileShareBucket.bucketName,
+      }
+    });
+    fileShareBucket.grantPut(postUploadsHandler.fn);
+    fileShareBucket.grantPutAcl(postUploadsHandler.fn);
+
     const postDownloadsHandler = new GoLambdaFunction(this, props.appPrefix + '-post-downloads', {
       name: props.appPrefix + '-post-downloads',
       entry: LAMBDA_POST_DOWNLOADS_LOCATION,
@@ -293,7 +307,7 @@ export class FileShareServiceStack extends cdk.Stack {
       }
     });
     fileShareBucket.grantRead(postDownloadsHandler.fn);
-    
+
     const getDownloadHandler = new GoLambdaFunction(this, props.appPrefix + '-get-download', {
       name: props.appPrefix + '-get-download',
       entry: LAMBDA_GET_DOWNLOAD_LOCATION,
@@ -320,8 +334,9 @@ export class FileShareServiceStack extends cdk.Stack {
         'ADMIN_ROLE_NAME': UserRole.ADMIN
       }
     });
-    const lambdaAuthorizer = new HttpLambdaAuthorizer(props.appPrefix + '-admin-authorizer', authHandler.fn, {
+    const lambdaAuthorizer = new HttpLambdaAuthorizer(props.appPrefix + '-cookie-authorizer', authHandler.fn, {
       responseTypes: [HttpLambdaResponseType.SIMPLE],
+      identitySource: ["$request.header.Cookie", "$request.header.cookie"]
     });
 
     /**
@@ -332,6 +347,15 @@ export class FileShareServiceStack extends cdk.Stack {
       path: `/${apiRouteName}/config`,
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration('get-config-integration', getConfigHandler.fn, {
+        payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
+      }),
+      authorizer: lambdaAuthorizer,
+    });
+
+    httpApi.addRoutes({
+      path: `/${apiRouteName}/uploads`,
+      methods: [HttpMethod.POST],
+      integration: new HttpLambdaIntegration('post-uploads-integration', postUploadsHandler.fn, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
       }),
       authorizer: lambdaAuthorizer,

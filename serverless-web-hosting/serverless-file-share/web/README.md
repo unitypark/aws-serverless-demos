@@ -1,41 +1,63 @@
-# Live Project
+<h1 align="center">URL Shortener</h1>
 
-Project is hosted at [swift-share.web.app](https://swift-share.web.app/)
+> URL Shortener made using TypeScript, React and MongoDB
 
-## Project Setup
+<p align="center"><strong> Live demo <a href="https://www.limurl.ml/">here</a>! </strong></p>
 
-To run the project follow these steps:
+<p align="center"><strong> Backend Repository <a href="https://github.com/aditya-singh9/url-shotener-backend-ts">here</a>. </strong></p>
 
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm start`
+## Table of Contents
 
-## Available Scripts
+- [Features](#features)
+- [Setup](#project-setup)
+- [Author](#author)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Built with TypeScript ✨
+- One page layout ✨
+- Dynamic ✨
+- Responsive ✨
+- Database used is MongoDB ✨
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project setup
 
-### `npm format`
+```
+npm install
+```
 
-Runs the prettier formatter.\
-View [prettier documentation](https://prettier.io/) to learn more.
+### Compilation and hot-reload for development
 
-Unformatted files will be updated by prettier.\
-add the files to git tracking and commit them before pushing.
+```
+npm start
+```
 
-### `npm run build`
+### Compilation and minification for production
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+npm run build
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Author
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+👤 **Aditya Singh**
+
+- Github: [@aditya-singh9](https://github.com/aditya-singh9)
+- LinkedIn: [@Aditya Singh](https://www.linkedin.com/in/aditya-singh9/)
+- Portfolio: [adityasingh.tech](https://adityasingh.tech)
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/aditya-singh9/url-shotener-frontend-ts/issues).
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+## 📝 License
+
+This projectt is under [MIT](https://github.com/aditya-singh9/url-shotener-frontend-ts/blob/main/LICENSE) license.

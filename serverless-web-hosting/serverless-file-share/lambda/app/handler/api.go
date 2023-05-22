@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
-	appResponse "github.com/unitypark/cloudfront-http-api-cognito/app/response"
+	appResponse "github.com/unitypark/serverless-file-share/lambda/app/response"
 
 	"go.uber.org/zap"
 )
@@ -48,6 +48,7 @@ func (h *fiberLambdaHandler) HandleAPIGatewayV2HTTPRequest(ctx context.Context, 
 	zap.L().Info("attaching user context to response")
 	appRes.Data.User.Username = req.RequestContext.Authorizer.Lambda["username"].(string)
 	appRes.Data.User.Role = req.RequestContext.Authorizer.Lambda["role"].(string)
+	appRes.Data.User.IsAdmin = req.RequestContext.Authorizer.Lambda["isAdmin"].(bool)
 
 	out, _ := json.Marshal(appRes)
 	response.Body = string(out)

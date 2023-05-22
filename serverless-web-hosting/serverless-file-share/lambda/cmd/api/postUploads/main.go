@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const serviceName string = "GetConfig"
+const serviceName string = "PostUploads"
 
 var (
 	config        *appConfig.Config
@@ -44,7 +44,7 @@ func main() {
 		repo              = repository.NewRepository(dynamodbClient)
 		fileShareService  = service.NewFileShareService(config, repo)
 	)
-	fiberApp.Get("/api/config", router.GetConfig(fileShareService))
+	fiberApp.Post("/api/uploads", router.PostUploadUrl(fileShareService))
 
 	if config.Env == appConfig.Local {
 		zap.L().Debug("start local server on port 8080", zap.Error(fiberApp.Listen(":8080")))

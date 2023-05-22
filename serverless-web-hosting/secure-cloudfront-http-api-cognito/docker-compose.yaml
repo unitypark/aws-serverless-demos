@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   api:
-    depends_on: 
+    depends_on:
       - dynamo
     network_mode: host
     container_name: golang-fiber-api
@@ -22,7 +22,7 @@ services:
     ports:
       - 3000:3000
     environment:
-       - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_USEPOLLING=true
   dynamo:
     # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.UsageNotes.html
     command: "-jar DynamoDBLocal.jar -sharedDb -optimizeDbBeforeStartup -dbPath ."

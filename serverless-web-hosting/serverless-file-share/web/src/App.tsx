@@ -7,40 +7,25 @@ import { createContext } from "react";
 
 interface AppContextInterface {
   origin: string
-  idToken: string;
   username: string;
   role: string;
+  isAdmin: boolean;
 }
 
 export const AppCtx = createContext<AppContextInterface>({
   origin: '',
-  idToken: '',
   username: '',
-  role: ''
+  role: '',
+  isAdmin: false,
 });
 
 // Provider in your app
 const appContext: AppContextInterface = {
   origin: `${window.location.origin}`,
-  idToken: getIdToken(getCookies()),
   username: '',
-  role: ''
+  role: '',
+  isAdmin: false,
 };
-
-function getIdToken(cookies: {
-  [property: string]: string;
-}): string {
-  let tokenCookieNamePrefix = 'CognitoIdentityServiceProvider.';
-  let tokenCookieNamePostfix = '.idToken';
-  let idToken = "";
-  for (let key in cookies) {
-    if (key.startsWith(tokenCookieNamePrefix) && key.endsWith(tokenCookieNamePostfix)) {
-      idToken = cookies[key];
-      break;
-    }
-  }
-  return idToken;
-}
 
 function App() {
   return (

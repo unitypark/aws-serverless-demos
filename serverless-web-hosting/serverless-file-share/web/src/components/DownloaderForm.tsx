@@ -15,9 +15,7 @@ function DownloaderForm() {
 
   const apiClient = axios.create({
     baseURL: appContext?.origin,
-    headers: {
-      Authorization: appContext?.idToken,
-    }
+    withCredentials: true,
   });
 
   const fetchConfig = async () => {
@@ -29,7 +27,10 @@ function DownloaderForm() {
       // setting current user information
       appContext.username = user.username;
       appContext.role = user.role;
+      appContext.isAdmin = user.isAdmin;
       setloading(false);
+    } else {
+      toast.error("Something wrong while configuration!");
     }
   }
 
@@ -86,15 +87,12 @@ function DownloaderForm() {
   };
 
   if (!loading) {
-
     return (
       <>
         <div className="outer">
           <div>
             <Toaster />
           </div>
-
-
           <div className="head-div">
             <p className="head">
               Provide Your <span>Access Key</span>
@@ -106,6 +104,7 @@ function DownloaderForm() {
                 <input
                   className="input"
                   value={accessKey}
+                  required={true}
                   onChange={(e: any) => setAccessKey(e.target.value)}
                 />
               </div>
