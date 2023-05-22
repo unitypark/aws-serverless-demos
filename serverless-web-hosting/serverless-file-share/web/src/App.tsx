@@ -1,8 +1,6 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import HomeContainer from "./containers/Home";
 import DownloaderContainer from "./containers/Downloader";
-import DrawerAppBar from "./components/Navbar";
-import { getCookies } from "typescript-cookie";
 import { createContext } from "react";
 
 interface AppContextInterface {
@@ -31,7 +29,6 @@ function App() {
   return (
     <AppCtx.Provider value={appContext}>
       <Router>
-        <DrawerAppBar />
         <Switch>
           <Route exact path="/">
             <HomeContainer />

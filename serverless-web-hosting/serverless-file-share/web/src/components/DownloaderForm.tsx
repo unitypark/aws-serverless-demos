@@ -30,7 +30,7 @@ function DownloaderForm() {
       appContext.isAdmin = user.isAdmin;
       setloading(false);
     } else {
-      toast.error("Something wrong while configuration!");
+      toast.error("Something went wrong while configuration!");
     }
   }
 

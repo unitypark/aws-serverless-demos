@@ -75,7 +75,7 @@ export class FileShareServiceStack extends cdk.Stack {
     });
 
     const cognitoAdminRoleUser = new CognitoUser(this, props.appPrefix + '-cognito-admin-user', {
-      username: 'iam',
+      username: 'admin',
       role: UserRole.ADMIN,
       userAttributes: [ 
         {
@@ -86,7 +86,7 @@ export class FileShareServiceStack extends cdk.Stack {
       userPool: cognito.userPool,
     });
     const cognitoDefaultRoleUser = new CognitoUser(this, props.appPrefix + '-cognito-default-user', {
-      username: 'youare',
+      username: 'client',
       role: UserRole.DEFAULT,
       userAttributes: [ 
         {
@@ -205,7 +205,7 @@ export class FileShareServiceStack extends cdk.Stack {
      */    
     const distribution = new Distribution(
       this,
-      `${props.appPrefix}-CloudFrontWebDistribution`,
+      `${props.appPrefix}-distribution`,
       {
         comment: `${props.appPrefix}-distribution`,
         defaultRootObject: "index.html",
@@ -234,7 +234,7 @@ export class FileShareServiceStack extends cdk.Stack {
     );
     const distributionUrl = `https://${distribution.distributionDomainName}`;
 
-    cognito.addClient('userPool-app-client', [
+    cognito.addClient(`${props.appPrefix}-userPool-app-client`, [
       distributionUrl,
       'http://localhost:3000',
     ]);
@@ -346,7 +346,7 @@ export class FileShareServiceStack extends cdk.Stack {
     httpApi.addRoutes({
       path: `/${apiRouteName}/config`,
       methods: [HttpMethod.GET],
-      integration: new HttpLambdaIntegration('get-config-integration', getConfigHandler.fn, {
+      integration: new HttpLambdaIntegration(props.appPrefix + '-get-config-integration', getConfigHandler.fn, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
       }),
       authorizer: lambdaAuthorizer,
@@ -355,7 +355,7 @@ export class FileShareServiceStack extends cdk.Stack {
     httpApi.addRoutes({
       path: `/${apiRouteName}/uploads`,
       methods: [HttpMethod.POST],
-      integration: new HttpLambdaIntegration('post-uploads-integration', postUploadsHandler.fn, {
+      integration: new HttpLambdaIntegration(props.appPrefix + '-post-uploads-integration', postUploadsHandler.fn, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
       }),
       authorizer: lambdaAuthorizer,
@@ -364,7 +364,7 @@ export class FileShareServiceStack extends cdk.Stack {
     httpApi.addRoutes({
       path: `/${apiRouteName}/downloads`,
       methods: [HttpMethod.POST],
-      integration: new HttpLambdaIntegration('post-downloads-integration', postDownloadsHandler.fn, {
+      integration: new HttpLambdaIntegration(props.appPrefix + '-post-downloads-integration', postDownloadsHandler.fn, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
       }),
       authorizer: lambdaAuthorizer,
@@ -373,7 +373,7 @@ export class FileShareServiceStack extends cdk.Stack {
     httpApi.addRoutes({
       path: `/${apiRouteName}/downloads/{key}`,
       methods: [HttpMethod.GET],
-      integration: new HttpLambdaIntegration('get-download-integration', getDownloadHandler.fn, {
+      integration: new HttpLambdaIntegration(props.appPrefix + '-get-download-integration', getDownloadHandler.fn, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0
       }),
       authorizer: lambdaAuthorizer,

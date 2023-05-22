@@ -17,6 +17,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	ALLOWED_DOWNLOAD_COUNT int = 100
+)
+
 type DynamoDbRepository interface {
 	GetAssetUrl(accessKey, username string) (*entities.Asset, error)
 	CreateAssetUrl(entity *entities.Asset) (*entities.Asset, error)
@@ -43,7 +47,7 @@ func (r *dynamoDbRepository) GetAssetUrl(accessKey, username string) (*entities.
 	}
 	preparedAsset := &(*assets)[len(*assets)-1]
 	isAssetDownloadUrlValid = isAssetUrlValid(preparedAsset)
-	if len(*assets) >= 4 {
+	if len(*assets) >= ALLOWED_DOWNLOAD_COUNT+1 {
 		isAssetDownloadUrlValid = false
 	}
 	if isAssetDownloadUrlValid {

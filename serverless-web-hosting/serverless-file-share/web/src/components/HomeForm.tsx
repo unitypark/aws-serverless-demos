@@ -10,6 +10,7 @@ import PulseLoader from "react-spinners/PulseLoader";
 import { useContext } from "react";
 import { AppCtx } from "../App";
 import { DropzoneDialog } from 'material-ui-dropzone';
+import { useHistory } from "react-router-dom";
 
 function AdminForm() {
   const [folder, setFolder] = useState();
@@ -21,6 +22,7 @@ function AdminForm() {
   const [openDropZone, setOpenDropZone] = useState(false);
   const [response, setResponse] = useState<{ username: string, role: string, accessKey: string } | null>(null);
   const appContext = useContext(AppCtx);
+  const history = useHistory();
 
   const apiClient = axios.create({
     baseURL: appContext?.origin,
@@ -62,6 +64,14 @@ function AdminForm() {
     toast.success("Copied!");
   };
 
+  const handleOnClick = () => {
+    if (folder === undefined || folder === "") {
+      toast.error("Provide a folder input");
+    } else {
+      setOpenDropZone(true);
+    }
+  }
+
   const getForksStarsCount = async () => {
     const { data } = await axios.get(`https://api.github.com/repos/deloittepark/aws-serverless-golang`);
     setforks(data.forks_count);
@@ -69,7 +79,6 @@ function AdminForm() {
   };
 
   const fetchConfig = async () => {
-    // get the data from the api
     const res = await apiClient.get(`/api/config`);
 
     if (res.status === 200) {
@@ -80,9 +89,14 @@ function AdminForm() {
       appContext.isAdmin = user.isAdmin;
       if (user.isAdmin === true) {
         setloading(false);
+      } else {
+        history.push({
+          pathname: '/downloader',
+          search: '?key=',
+        });
       }
     } else {
-      toast.error("Something wrong while configuration!");
+      toast.error("Something went wrong while configuration!");
     }
   }
 
@@ -109,7 +123,7 @@ function AdminForm() {
 
           <div className="head-div">
             <p className="head">
-              AWS Cloud S3 Data <span>Share</span>
+              AWS 🌩️ S3 <span>FileShare</span>
             </p>
           </div>
           <div className="forks_stars_div">
@@ -170,7 +184,7 @@ function AdminForm() {
                   onChange={(e: any) => setFolder(e.target.value)}
                 />
               </div>
-              <button type="submit" className="button" onClick={() => setOpenDropZone(true)}>
+              <button type="submit" className="button" onClick={handleOnClick}>
                 upload
               </button>
             </div>

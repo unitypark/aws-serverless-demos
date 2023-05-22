@@ -13,7 +13,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// FileShareRouter is the Router for GoFiber App
+const (
+	DOWNLOAD_URL_EXPIRING_TIME_IN_MINUTES int = 1440
+	UPLOAD_URL_EXPIRING_TIME_IN_MINUTES   int = 10
+)
+
 func FileShareRouter(app fiber.Router, fileShareService service.FileShareService) {
 	app.Get("/api/config", GetConfig(fileShareService))
 	app.Post("/api/uploads", PostUploadUrl(fileShareService))
@@ -21,7 +25,6 @@ func FileShareRouter(app fiber.Router, fileShareService service.FileShareService
 	app.Get("/api/downloads/:key", GetDownloadUrl(fileShareService))
 }
 
-// GetDownloadUrl is handler/controller which retrieves original Url of shortened url from the UrlShortener Table
 func GetConfig(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to GET /api/config")
 	return func(c *fiber.Ctx) error {
@@ -31,7 +34,6 @@ func GetConfig(fileShareService service.FileShareService) fiber.Handler {
 	}
 }
 
-// PostDownloadUrl is handler/controller which creates Url Entry in the UrlConverter Table
 func PostUploadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to POST /api/uploads")
 	return func(c *fiber.Ctx) error {
@@ -54,7 +56,7 @@ func PostUploadUrl(fileShareService service.FileShareService) fiber.Handler {
 		zap.L().Info(fmt.Sprintf("retrieved path from body: %s", requestBody.Path))
 		zap.L().Info(fmt.Sprintf("retrieved username from body: %s", requestBody.Username))
 
-		result, err := fileShareService.CreateUploadUrl(requestBody.Path, 60)
+		result, err := fileShareService.CreateUploadUrl(requestBody.Path, UPLOAD_URL_EXPIRING_TIME_IN_MINUTES)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.UrlErrorResponse(err))
@@ -65,7 +67,6 @@ func PostUploadUrl(fileShareService service.FileShareService) fiber.Handler {
 	}
 }
 
-// GetDownloadUrl is handler/controller which retrieves original Url of shortened url from the UrlShortener Table
 func GetDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to GET /api/downloads/:key")
 	return func(c *fiber.Ctx) error {
@@ -94,7 +95,6 @@ func GetDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 	}
 }
 
-// PostDownloadUrl is handler/controller which creates Url Entry in the UrlConverter Table
 func PostDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to POST /api/downloads")
 	return func(c *fiber.Ctx) error {
@@ -117,7 +117,7 @@ func PostDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 		zap.L().Info(fmt.Sprintf("retrieved path from body: %s", requestBody.Path))
 		zap.L().Info(fmt.Sprintf("retrieved username from body: %s", requestBody.Username))
 
-		result, err := fileShareService.CreateDownloadUrl(requestBody.Path, requestBody.Username, 60)
+		result, err := fileShareService.CreateDownloadUrl(requestBody.Path, requestBody.Username, DOWNLOAD_URL_EXPIRING_TIME_IN_MINUTES)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.UrlErrorResponse(err))
