@@ -16,6 +16,7 @@ use (
 	./serverless-web-hosting/cloudfront-http-api-cognito/lambda
 	./serverless-web-hosting/secure-cloudfront-http-api-cognito/lambda
 	./serverless-web-hosting/secure-cloudfront-http-api-cognito/customresource
-	./serverless-web-hosting/serverless-file-share/lambda
+	./serverless-web-hosting/serverless-file-share/lambda/api
+	./serverless-web-hosting/serverless-file-share/lambda/cognitotrigger
 	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-consumer-api
 )

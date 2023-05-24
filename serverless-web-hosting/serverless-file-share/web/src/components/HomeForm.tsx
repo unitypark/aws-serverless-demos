@@ -85,7 +85,6 @@ function AdminForm() {
       const user = res.data.data.user;
       // setting current user information
       appContext.username = user.username;
-      appContext.role = user.role;
       appContext.isAdmin = user.isAdmin;
       if (user.isAdmin === true) {
         setloading(false);

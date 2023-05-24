@@ -6,11 +6,11 @@ import CognitoPassword from "aws-cognito-temporary-password-generator"
 
 interface Props {
   username: string
-  role: string
   userAttributes: {
     Name: string;
     Value: string;
   }[]
+  messageAction: string;
   userPool: cognito.IUserPool
 }
 
@@ -24,7 +24,7 @@ export class CognitoUser extends constructs.Construct {
     // Reference - https://github.com/hugtechio/aws-cognito-temporary-password-generator
     const generator = new CognitoPassword()
     this.username = props.username
-    this.password = generator.generate()
+    this.password = generator.generate({length: 12})
 
     const user = new cr.AwsCustomResource(this, props.username + "-user", {
       onCreate: {
@@ -33,7 +33,8 @@ export class CognitoUser extends constructs.Construct {
         parameters: {
           UserPoolId: props.userPool.userPoolId,
           Username: props.username,
-          UserAttributes: props.userAttributes
+          UserAttributes: props.userAttributes,
+          MessageAction: props.messageAction,
         },
         physicalResourceId: cr.PhysicalResourceId.of(`AwsCustomResource-AdminCreateUser-${props.username}`),
       },

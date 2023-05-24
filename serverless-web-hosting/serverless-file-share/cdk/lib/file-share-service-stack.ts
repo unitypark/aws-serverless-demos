@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, CfnDistribution, CloudFrontAllowedCachedMethods, CloudFrontAllowedMethods, CloudFrontWebDistribution, Distribution, EdgeLambda, ErrorResponse, KeyGroup, LambdaEdgeEventType, OriginAccessIdentity, PublicKey, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import path = require('path');
@@ -13,9 +13,9 @@ import { CognitoUser } from "./construct/cognito-user"
 import { CrossRegionParameter } from "./construct/cross-region-parameter";
 import { NodeLambdaEdgeFunction } from './construct/edge-lambda';
 import { CognitoUserPool } from './construct/cognito';
-import { HttpLambdaAuthorizer, HttpLambdaResponseType, HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
+import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
-import { HttpOrigin, RestApiOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 
 enum HttpStatus {
   OK = 200,
@@ -27,12 +27,6 @@ enum LambdaType {
   API = 'api',
   AUTH = 'auth'
 }
-
-enum UserRole {
-  ADMIN = 'ADMIN',
-  DEFAULT = 'DEFAULT'
-}
-
 interface Props extends cdk.StackProps {
   appPrefix: string
   edgeRegion: string
@@ -42,12 +36,12 @@ export class FileShareServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const LAMBDA_PREFIX = '../lambda/cmd'
-    const LAMBDA_GET_CONFIG_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/getConfig/main.go`
-    const LAMBDA_POST_UPLOADS_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/postUploads/main.go`
-    const LAMBDA_POST_DOWNLOADS_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/postDownloads/main.go`
-    const LAMBDA_GET_DOWNLOAD_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.API}/getDownload/main.go`
-    const LAMBDA_API_AUTHORIZER_LOCATION = `${LAMBDA_PREFIX}/${LambdaType.AUTH}/main.go`
+    const API_LAMBDA_PREFIX = '../lambda/api/cmd'
+    const LAMBDA_GET_CONFIG_LOCATION = `${API_LAMBDA_PREFIX}/${LambdaType.API}/getConfig/main.go`
+    const LAMBDA_POST_UPLOADS_LOCATION = `${API_LAMBDA_PREFIX}/${LambdaType.API}/postUploads/main.go`
+    const LAMBDA_POST_DOWNLOADS_LOCATION = `${API_LAMBDA_PREFIX}/${LambdaType.API}/postDownloads/main.go`
+    const LAMBDA_GET_DOWNLOAD_LOCATION = `${API_LAMBDA_PREFIX}/${LambdaType.API}/getDownload/main.go`
+    const LAMBDA_API_AUTHORIZER_LOCATION = `${API_LAMBDA_PREFIX}/${LambdaType.AUTH}/main.go`
 
     /**
      * DynamoDB
@@ -74,26 +68,24 @@ export class FileShareServiceStack extends cdk.Stack {
       appPrefix: props.appPrefix,
     });
 
-    const cognitoAdminRoleUser = new CognitoUser(this, props.appPrefix + '-cognito-admin-user', {
-      username: 'admin',
-      role: UserRole.ADMIN,
+    const adminEmail = 'admin@fileshare.io'
+    const cognitoAdminUser = new CognitoUser(this, props.appPrefix + '-cognito-admin-user', {
+      username: adminEmail,
       userAttributes: [ 
         {
-          Name: 'custom:role',
-          Value: UserRole.ADMIN
-        }
-      ],
-      userPool: cognito.userPool,
-    });
-    const cognitoDefaultRoleUser = new CognitoUser(this, props.appPrefix + '-cognito-default-user', {
-      username: 'client',
-      role: UserRole.DEFAULT,
-      userAttributes: [ 
+          Name: 'email',
+          Value: adminEmail
+        },
         {
-          Name: 'custom:role',
-          Value: UserRole.DEFAULT
+          Name: 'email_verified',
+          Value: 'true'
+        },
+        {
+          Name: 'custom:isAdmin',
+          Value: 'true'
         }
       ],
+      messageAction: 'SUPPRESS',
       userPool: cognito.userPool,
     });
 
@@ -331,7 +323,6 @@ export class FileShareServiceStack extends cdk.Stack {
         'JWKS_URL': `https://cognito-idp.${this.region}.amazonaws.com/${cognito.userPool.userPoolId}/.well-known/jwks.json`,
         'ISS': `https://cognito-idp.${this.region}.amazonaws.com/${cognito.userPool.userPoolId}`,
         'COGNITO_USER_POOL_CLIENT_ID': cognito.userPoolClient.userPoolClientId,
-        'ADMIN_ROLE_NAME': UserRole.ADMIN
       }
     });
     const lambdaAuthorizer = new HttpLambdaAuthorizer(props.appPrefix + '-cookie-authorizer', authHandler.fn, {
@@ -400,9 +391,7 @@ export class FileShareServiceStack extends cdk.Stack {
     
     new cdk.CfnOutput(this, 'FileShareBucketName', { value: fileShareBucket.bucketName });
     new cdk.CfnOutput(this, 'CloudfrontAdminDistributionDomain', { value: distributionUrl });
-    new cdk.CfnOutput(this, 'AdminUsername', { value: cognitoAdminRoleUser.username });
-    new cdk.CfnOutput(this, 'AdminPassword', { value: cognitoAdminRoleUser.password });
-    new cdk.CfnOutput(this, 'ClientUsername', { value: cognitoDefaultRoleUser.username });
-    new cdk.CfnOutput(this, 'ClientPassword', { value: cognitoDefaultRoleUser.password });
+    new cdk.CfnOutput(this, 'AdminUsername', { value: cognitoAdminUser.username });
+    new cdk.CfnOutput(this, 'AdminPassword', { value: cognitoAdminUser.password });
   }
 }

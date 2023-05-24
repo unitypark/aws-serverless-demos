@@ -6,14 +6,12 @@ import { createContext } from "react";
 interface AppContextInterface {
   origin: string
   username: string;
-  role: string;
   isAdmin: boolean;
 }
 
 export const AppCtx = createContext<AppContextInterface>({
   origin: '',
   username: '',
-  role: '',
   isAdmin: false,
 });
 
@@ -21,7 +19,6 @@ export const AppCtx = createContext<AppContextInterface>({
 const appContext: AppContextInterface = {
   origin: `${window.location.origin}`,
   username: '',
-  role: '',
   isAdmin: false,
 };
 
