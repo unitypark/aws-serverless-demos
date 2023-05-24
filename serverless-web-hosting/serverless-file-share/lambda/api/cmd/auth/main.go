@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -44,7 +45,7 @@ func handler(ctx context.Context, req events.APIGatewayV2CustomAuthorizerV2Reque
 		return generateResponse(false, nil), nil
 	}
 
-	err = validateIdToken(accessToken)
+	err = validateToken(accessToken)
 	if err != nil {
 		zap.L().Error("authorizatoin failed", zap.Error(err))
 		return generateResponse(false, idToken), nil
@@ -62,29 +63,8 @@ func getToken(regex *regexp.Regexp, authHeader string) (*string, error) {
 	return &token, nil
 }
 
-func findAuthHeader(headers map[string]string, authHeaderNames []string) string {
-	var authHeader string
-	for _, key := range authHeaderNames {
-		authHeader = headers[key]
-		if authHeader != "" {
-			break
-		}
-	}
-	return authHeader
-}
-
-// Help function to generate an IAM policy
-func generateResponse(isAuthorized bool, idToken *string) events.APIGatewayV2CustomAuthorizerSimpleResponse {
-	return events.APIGatewayV2CustomAuthorizerSimpleResponse{
-		IsAuthorized: isAuthorized,
-		Context: map[string]interface{}{
-			"idToken": idToken,
-		},
-	}
-}
-
-func validateIdToken(token *string) error {
-	parsedToken, err := jwt.Parse(*token, func(token *jwt.Token) (interface{}, error) {
+func parseToken(token string) (*jwt.Token, error) {
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		set, err := jwk.FetchHTTP(config.JwksUrl)
 		if err != nil {
 			return nil, err
@@ -100,9 +80,44 @@ func validateIdToken(token *string) error {
 		}
 		return nil, errors.New("unable to find key")
 	})
-	if err != nil {
-		return err
+}
+
+func findAuthHeader(headers map[string]string, authHeaderNames []string) string {
+	var authHeader string
+	for _, key := range authHeaderNames {
+		authHeader = headers[key]
+		if authHeader != "" {
+			break
+		}
 	}
+	return authHeader
+}
+
+// Help function to generate an IAM policy
+func generateResponse(isAuthorized bool, idToken *string) events.APIGatewayV2CustomAuthorizerSimpleResponse {
+	if isAuthorized {
+		parsedIdToken, _ := parseToken(*idToken)
+		return events.APIGatewayV2CustomAuthorizerSimpleResponse{
+			IsAuthorized: isAuthorized,
+			Context: map[string]interface{}{
+				"username": parsedIdToken.Claims.(jwt.MapClaims)["email"],
+				"isAdmin":  isAdmin(parsedIdToken.Claims.(jwt.MapClaims)["custom:isAdmin"].(string)),
+			},
+		}
+	} else {
+		return events.APIGatewayV2CustomAuthorizerSimpleResponse{
+			IsAuthorized: isAuthorized,
+		}
+	}
+}
+
+func isAdmin(isAdmin string) bool {
+	res, _ := strconv.ParseBool(isAdmin)
+	return res
+}
+
+func validateToken(token *string) error {
+	parsedToken, err := parseToken(*token)
 	if err != nil {
 		return err
 	}
