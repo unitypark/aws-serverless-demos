@@ -1,7 +1,6 @@
 import { Construct } from 'constructs';
 import { AccountRecovery, BooleanAttribute, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
-import { GoFunction } from '@aws-cdk/aws-lambda-go-alpha';
 import { GoLambdaFunction } from './goLambdaFunction';
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 

@@ -16,6 +16,9 @@ import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 enum HttpStatus {
   OK = 200,
@@ -30,6 +33,8 @@ enum LambdaType {
 interface Props extends cdk.StackProps {
   appPrefix: string
   edgeRegion: string
+  domainName?: string
+  certificate?: Certificate
 }
 
 export class FileShareServiceStack extends cdk.Stack {
@@ -68,7 +73,7 @@ export class FileShareServiceStack extends cdk.Stack {
       appPrefix: props.appPrefix,
     });
 
-    const adminEmail = 'admin@fileshare.io'
+    const adminEmail = 'admin@fileshare.de'
     const cognitoAdminUser = new CognitoUser(this, props.appPrefix + '-cognito-admin-user', {
       username: adminEmail,
       userAttributes: [ 
@@ -200,6 +205,8 @@ export class FileShareServiceStack extends cdk.Stack {
       `${props.appPrefix}-distribution`,
       {
         comment: `${props.appPrefix}-distribution`,
+        certificate: props.certificate,
+        domainNames: props.domainName === undefined ? undefined : [props.domainName],
         defaultRootObject: "index.html",
         errorResponses: [errorResponse403, errorResponse404],
         defaultBehavior: {
@@ -224,11 +231,25 @@ export class FileShareServiceStack extends cdk.Stack {
         },
       }
     );
-    const distributionUrl = `https://${distribution.distributionDomainName}`;
+    const DISTRIBUTION_URL = props.domainName === undefined ? `https://${distribution.distributionDomainName}` : `https://${props.domainName}`
 
+    if (props.domainName !== undefined) {
+      const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
+        domainName: props.domainName 
+      });
+  
+      new ARecord(this, 'distribution-ARecord', {
+        recordName: props.domainName,
+        zone: hostedZone,
+        target: RecordTarget.fromAlias(
+          new CloudFrontTarget(distribution)
+        ),
+      });
+    }
+    
     cognito.addClient(`${props.appPrefix}-userPool-app-client`, [
-      distributionUrl,
       'http://localhost:3000',
+      DISTRIBUTION_URL,
     ]);
 
     new BucketDeployment(this, props.appPrefix + '-deploy-web-asset', {
@@ -264,7 +285,7 @@ export class FileShareServiceStack extends cdk.Stack {
           ],
           allowedOrigins: [
               'http://localhost:3000',
-              distributionUrl,
+              DISTRIBUTION_URL,
             ],
           allowedHeaders: ['*'],
         },
@@ -390,7 +411,7 @@ export class FileShareServiceStack extends cdk.Stack {
     });
     
     new cdk.CfnOutput(this, 'FileShareBucketName', { value: fileShareBucket.bucketName });
-    new cdk.CfnOutput(this, 'CloudfrontAdminDistributionDomain', { value: distributionUrl });
+    new cdk.CfnOutput(this, 'CloudfrontAdminDistributionDomain', { value: DISTRIBUTION_URL});
     new cdk.CfnOutput(this, 'AdminUsername', { value: cognitoAdminUser.username });
     new cdk.CfnOutput(this, 'AdminPassword', { value: cognitoAdminUser.password });
   }

@@ -45,7 +45,7 @@ func handler(ctx context.Context, req events.APIGatewayV2CustomAuthorizerV2Reque
 		return generateResponse(false, nil), nil
 	}
 
-	err = validateToken(accessToken)
+	err = validateToken(*accessToken)
 	if err != nil {
 		zap.L().Error("authorizatoin failed", zap.Error(err))
 		return generateResponse(false, idToken), nil
@@ -116,12 +116,18 @@ func isAdmin(isAdmin string) bool {
 	return res
 }
 
-func validateToken(token *string) error {
-	parsedToken, err := parseToken(*token)
+func validateToken(token string) error {
+	zap.L().Info("config", zap.Any("config", config))
+
+	parsedToken, err := parseToken(token)
 	if err != nil {
 		return err
 	}
+	zap.L().Info("parsedToken", zap.Any("parsedToken", parsedToken))
+
 	mapClaims := parsedToken.Claims.(jwt.MapClaims)
+	zap.L().Info("mapClaims", zap.Any("mapClaims", mapClaims))
+
 	// validate "iat"
 	checkIat := mapClaims.VerifyIssuedAt(time.Now().Unix(), true)
 	if !checkIat {
@@ -138,6 +144,7 @@ func validateToken(token *string) error {
 		return fmt.Errorf("invalid issuer")
 	}
 	// validate "aud"
+	mapClaims["aud"] = mapClaims["client_id"]
 	checkAud := mapClaims.VerifyAudience(config.TokenAud, true)
 	if !checkAud {
 		return fmt.Errorf("invalid audience")

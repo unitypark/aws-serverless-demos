@@ -1,0 +1,10 @@
+{
+  "hosted-zone:account=979213071888:domainName=fileshare.awsdeloitte.de:region=us-east-1": {
+    "Id": "/hostedzone/Z04997991DUHX41MMFZ7T",
+    "Name": "fileshare.awsdeloitte.de."
+  },
+  "hosted-zone:account=979213071888:domainName=fileshare.awsdeloitte.de:region=eu-west-1": {
+    "Id": "/hostedzone/Z04997991DUHX41MMFZ7T",
+    "Name": "fileshare.awsdeloitte.de."
+  }
+}
