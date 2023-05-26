@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { FileShareServiceStack } from '../lib/file-share-service-stack';
+import { FileShareServiceLandingZoneStack } from '../lib/file-share-landing-zone-stack';
 import { DistributionCertificate } from '../lib/certificate-stack';
+import { FileShareProtectedServiceStack } from '../lib/file-share-protected-service-stack';
 
 const app = new cdk.App();
 
@@ -9,15 +10,15 @@ const edgeRegion = 'us-east-1';
 const domainName = app.node.tryGetContext('domainName');
 
 if (domainName === undefined) {
-  new FileShareServiceStack(app, appPrefix + '-app-stack', {
+  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
     appPrefix: appPrefix,
     edgeRegion: edgeRegion,
-    crossRegionReferences: true,
   })
+
 } else {
   const distributionCertificationStack = new DistributionCertificate(app, appPrefix + '-certificate-stack', {
     env: {
@@ -28,15 +29,27 @@ if (domainName === undefined) {
     crossRegionReferences: true,
   });
 
-  new FileShareServiceStack(app, appPrefix + '-app-stack', {
+  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
     appPrefix: appPrefix,
     edgeRegion: edgeRegion,
-    domainName: domainName,
-    certificate: distributionCertificationStack.certificate,
+    publicDomainName: domainName,
+    certificate: distributionCertificationStack.landingZoneCertificate,
+    crossRegionReferences: true,
+  })
+
+  new FileShareProtectedServiceStack(app, appPrefix + '-protected-service-stack', {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    appPrefix: appPrefix,
+    edgeRegion: edgeRegion,
+    protectedDomainName: `protected.${domainName}`,
+    certificate: distributionCertificationStack.protectedServiceCertificate,
     crossRegionReferences: true,
   })
 }

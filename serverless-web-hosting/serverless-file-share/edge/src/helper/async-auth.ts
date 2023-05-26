@@ -21,9 +21,8 @@ type SingleAuthenticatorParams = {
       userPoolClientIdResolver,
       userPoolDomainResolver
     } : SingleAuthenticatorParams): Promise<CloudFrontRequestResult> {
-  
+        
       if (this._authenticatorInstance === undefined) {
-
         console.debug('fetcing ssm values')
         const [userPoolId, userPoolAppId, userPoolDomain] = await Promise.all([
           userPoolIdResolver(),
@@ -44,6 +43,8 @@ type SingleAuthenticatorParams = {
           logLevel,
         });
       }
+
+      
       return this._authenticatorInstance.handle(event);
     }
   }

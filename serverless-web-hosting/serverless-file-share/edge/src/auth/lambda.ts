@@ -18,7 +18,7 @@ export const handler: CloudFrontRequestHandler =
     event,
     {
       region: Region.DEFAULT,
-      logLevel: LogLevel.DEBUG,
+      logLevel: LogLevel.SILENT,
       userPoolIdResolver:
         async () => (
           await ssmClient.send(new GetParameterCommand({ Name: ssmParamNames.userPoolIdParamName }))

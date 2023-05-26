@@ -1,0 +1,122 @@
+.logo-customizable {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.banner-customizable {
+  padding: unset;
+  background-color: transparent;
+}
+
+.label-customizable {
+  font-weight: 400;
+  color: transparent;
+}
+
+.textDescription-customizable {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: block;
+  font-size: 16px;
+  display: none;
+}
+
+.idpDescription-customizable {
+  padding-bottom: 10px;
+  display: block;
+  font-size: 16px;
+}
+
+.legalText-customizable {
+  color: #747474;
+  font-size: 11px;
+}
+
+.submitButton-customizable {
+  height: 40px;
+  width: 100%;
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+  border: none;
+  border-radius: 45px;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0px 5px 10px -3px #0070f3;
+  background-color: #0070f3;
+  color: #fff;
+  transition: all 0.3s ease 0s;
+}
+
+.submitButton-customizable:hover {
+  color: #fff;
+  background-color: #286090;
+  box-shadow: 0px 3px 12px #0070f3;
+}
+
+.errorMessage-customizable {
+  padding: 5px;
+  font-size: 14px;
+  width: 100%;
+  background: #F5F5F5;
+  border: 2px solid #D64958;
+  color: #D64958;
+}
+
+.inputField-customizable {
+  width: 100%;
+  height: 40px;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 45px;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.inputField-customizable:focus {
+  border-color: #66afe9;
+  outline: 0;
+}
+
+.idpButton-customizable {
+  height: 40px;
+  width: 100%;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 15px;
+  color: #fff;
+  background-color: #5bc0de;
+  border-color: #46b8da;
+}
+
+.idpButton-customizable:hover {
+  color: #fff;
+  background-color: #31b0d5;
+}
+
+.socialButton-customizable {
+  border-radius: 2px;
+  height: 40px;
+  margin-bottom: 15px;
+  padding: 1px;
+  text-align: left;
+  width: 100%;
+}
+
+.redirect-customizable {
+  text-align: center;
+}
+
+.passwordCheck-notValid-customizable {
+  color: #DF3312;
+}
+
+.passwordCheck-valid-customizable {
+  color: #19BF00;
+}
+
+.background-customizable {
+  background-color: #fff;
+}

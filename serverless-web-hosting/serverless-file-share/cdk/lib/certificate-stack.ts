@@ -11,18 +11,28 @@ interface Props extends StackProps {
 }
 
 export class DistributionCertificate extends Stack {
-  public readonly certificate: Certificate;
+  public readonly landingZoneCertificate: Certificate;
+  public readonly protectedServiceCertificate: Certificate;
 
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
+    const landingZoneHostedZone = PublicHostedZone.fromLookup(this, "LandingZonePublicHostedZoneImport", { 
       domainName: props.domainName 
     });
 
-    this.certificate = new Certificate(this, "DistributionCertificate", {
+    const protectedServiceZoneHostedZone = PublicHostedZone.fromLookup(this, "ProtectedPublicHostedZoneImport", { 
+      domainName: `protected.${props.domainName}`
+    });
+
+    this.landingZoneCertificate = new Certificate(this, "LandingZoneDistributionCertificate", {
       domainName: props.domainName,
-      validation: CertificateValidation.fromDns(hostedZone),
+      validation: CertificateValidation.fromDns(landingZoneHostedZone),
+    });
+
+    this.protectedServiceCertificate = new Certificate(this, "ProtectedServiceDistributionCertificate", {
+      domainName: `protected.${props.domainName}`,
+      validation: CertificateValidation.fromDns(protectedServiceZoneHostedZone),
     });
   }
 }
