@@ -153,15 +153,14 @@ chmod +x ci.sh && ./ci.sh <your_aws_domain>
 
 - ⚠️ Max 2GB file is allowed for uploading. 
 
-6. Click copy clipboard button and share this url with your client. Client can download your file via access key provided in this url as query parameter.
-![](./docs/clipboard.png)
+6. Share this url with your client. Client can download your file via download key provided in this url as query parameter.
 
 ## 📜 How To Guide - Download
 1. Open given URL sent by admin user.
 
 2. Login into the application as client.
 
-3. If client opened the application via given URL, access key is set in input field automatically.
+3. If client opened the application via given URL, download key is set in input field automatically.
 ![](./docs/download_copied.png)
 
 4. Click download button.
