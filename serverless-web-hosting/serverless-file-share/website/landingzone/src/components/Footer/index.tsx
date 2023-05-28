@@ -66,7 +66,7 @@ const Footer = ({ t }: any) => {
             </a>
             <FooterContainer>
               <SocialLink
-                href="https://github.com/unitypark/aws-serverless-demos"
+                href="https://github.com/unitypark/aws-serverless-demos/tree/main/serverless-web-hosting/serverless-file-share"
                 src="github.svg"
               />
               <SocialLink

@@ -1,16 +1,16 @@
 {
-  "title": "Light, fast & responsive",
-  "text": "This template is ready to use, so you don't need to change anything at a component level, unless you want to customize the default styling.",
+  "title": "FileShare Service",
+  "text": "This demo web application provides a real world usecase to transfer data securely between users using S3 and cookie based authentication.",
   "section": [
     {
-      "title": "Why Antd?",
-      "content": "Ant Design is a React UI library that has a lot of easy-to-use components for building elegant UI.",
-      "icon": "notes.svg"
+      "title": "No Amplify.js",
+      "content": "Authentication process will be handled by Edge@Lambda and secure cookies will be transported.",
+      "icon": "idea-bulb-svgrepo-com.svg"
     },
     {
-      "title": "Why styled-components?",
-      "content": "Styled Components gives you total control over your components.",
-      "icon": "notes.svg"
+      "title": "Protected service",
+      "content": "FileShare Service is a protected service from landing zone which needs authentication.",
+      "icon": "idea-bulb-svgrepo-com.svg"
     }
   ]
 }

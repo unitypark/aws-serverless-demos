@@ -1,12 +1,14 @@
 {
-  "title": "Landing page template for developers & startups",
-  "text": "Beautifully designed templates using React.js, ant design and styled-components! Save weeks of time and build your landing page in minutes.",
+  "title": "Deloitte Consulting - CTSE",
+  "text": "We are the place to be! - We are a strong team of learners and leaders, shaping the future of technology consulting.",
   "button": [
     {
-      "title": "Explore"
+      "title": "Cloud Transformation",
+      "id": "ct"
     },
     {
-      "title": "Learn more",
+      "title": "System Engineering",
+      "id": "se",
       "color": "#fff"
     }
   ]

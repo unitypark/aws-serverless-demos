@@ -1,0 +1,4 @@
+{
+  "title": "How To",
+  "text": "Click FileShare Service Button on top to link to protected service. When you sign up, default role will be assigned to you. For full feature like uploading and sharing, you need an admin role. If you want to deploy this solution in you own aws account, please follow the instruction in GitHub."
+}

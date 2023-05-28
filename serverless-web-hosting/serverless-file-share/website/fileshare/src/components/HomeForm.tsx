@@ -70,7 +70,7 @@ function AdminForm() {
   }
 
   const getForksStarsCount = async () => {
-    const { data } = await axios.get(`https://api.github.com/repos/deloittepark/aws-serverless-golang`);
+    const { data } = await axios.get(`https://api.github.com/repos/unitypark/aws-serverless-demos`);
     setforks(data.forks_count);
     setstars(data.stargazers_count);
   };
@@ -124,7 +124,7 @@ function AdminForm() {
           </div>
           <div className="forks_stars_div">
             <div className="block_div">
-              <a className="btn" href="https://github.com/deloittepark/aws-serverless-golang/tree/main/ecs-url-shortener" rel="noreferrer noopener" target="_blank" aria-label="Fork aditya-singh9/kekfinder on GitHub">
+              <a className="btn" href="https://github.com/unitypark/aws-serverless-demos" rel="noreferrer noopener" target="_blank" aria-label="Fork aditya-singh9/kekfinder on GitHub">
                 <div className="block_divLeft">
 
                   <StarBorderIcon className="starbtn" /><p className="forks_stars_text">Star</p>
@@ -136,7 +136,7 @@ function AdminForm() {
               </div>
             </div>
             <div className="block_div">
-              <a className="btn" href="https://github.com/deloittepark/aws-serverless-golang/fork" rel="noreferrer noopener" target="_blank" aria-label="Fork aditya-singh9/kekfinder on GitHub">
+              <a className="btn" href="https://github.com/unitypark/aws-serverless-demos/fork" rel="noreferrer noopener" target="_blank" aria-label="Fork aditya-singh9/kekfinder on GitHub">
                 <div className="block_divRight">
 
                   <svg className="fork_logo" viewBox="0 0 16 16" width="20" height="20" margin-top="2" aria-hidden="true">

@@ -1,12 +1,12 @@
 import { lazy } from "react";
 import IntroContent from "../../content/IntroContent.json";
-import MiddleBlockContent from "../../content/MiddleBlockContent.json";
+import CloudformationBlockContent from "../../content/CloudformationBlockContent.json";
+import SystemEngineeringBlockContent from "../../content/SystemEngineeringBlockContent.json";
 import AboutContent from "../../content/AboutContent.json";
-import MissionContent from "../../content/MissionContent.json";
-import ProductContent from "../../content/ProductContent.json";
-import ContactContent from "../../content/ContactContent.json";
+import DeployContent from "../../content/DeployContent.json";
+import ArchBlockContent from "../../content/ArchBlockContent.json";
 
-const Contact = lazy(() => import("../../components/ContactForm"));
+
 const MiddleBlock = lazy(() => import("../../components/MiddleBlock"));
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
@@ -21,35 +21,40 @@ const Home = () => {
         title={IntroContent.title}
         content={IntroContent.text}
         button={IntroContent.button}
-        icon="developer.svg"
-        id="intro"
+        icon="teams.jpg"
+        id="ctse"
       />
       <MiddleBlock
-        title={MiddleBlockContent.title}
-        content={MiddleBlockContent.text}
-        button={MiddleBlockContent.button}
+        title={CloudformationBlockContent.title}
+        content={CloudformationBlockContent.text}
+        id="ct"
+      />
+      <MiddleBlock
+        title={SystemEngineeringBlockContent.title}
+        content={SystemEngineeringBlockContent.text}
+        id="se"
       />
       <ContentBlock
         type="left"
         title={AboutContent.title}
         content={AboutContent.text}
         section={AboutContent.section}
-        icon="graphs.svg"
-        id="about"
+        icon="fileshare.jpg"
+        id="service"
       />
       <ContentBlock
         type="right"
-        title={MissionContent.title}
-        content={MissionContent.text}
-        icon="product-launch.svg"
-        id="mission"
+        title={ArchBlockContent.title}
+        content={ArchBlockContent.text}
+        icon="arch.png"
+        id="arch"
       />
       <ContentBlock
         type="left"
-        title={ProductContent.title}
-        content={ProductContent.text}
-        icon="waving.svg"
-        id="product"
+        title={DeployContent.title}
+        content={DeployContent.text}
+        icon="deploy.jpg"
+        id="how-to"
       />
     </Container>
   );

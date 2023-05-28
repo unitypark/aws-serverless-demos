@@ -10,7 +10,7 @@ const edgeRegion = 'us-east-1';
 const domainName = app.node.tryGetContext('domainName');
 
 if (domainName === undefined) {
-  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
+  new FileShareProtectedServiceStack(app, appPrefix + '-protected-service-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
@@ -18,7 +18,6 @@ if (domainName === undefined) {
     appPrefix: appPrefix,
     edgeRegion: edgeRegion,
   })
-
 } else {
   const distributionCertificationStack = new DistributionCertificate(app, appPrefix + '-certificate-stack', {
     env: {

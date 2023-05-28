@@ -1,0 +1,4 @@
+{
+  "title": "AWS Serverless Solution",
+  "text": "This application is built with aws serverless services. It demonstrates highly scalable and secure serverless solution to host SPA on aws and gives an insight to integrate protected service inside of landing zone platform."
+}

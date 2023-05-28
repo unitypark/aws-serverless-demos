@@ -7,11 +7,15 @@ In **AWS 🌩️ FileShare** project is the extended version of previous project
 
 🌩️ HTTP API Gateway
 
-🌩️ S3 Bucket for Website
+🌩️ S3 Bucket for Landing Zone Website
+
+🌩️ S3 Bucket for FileShare Service Website
 
 🌩️ S3 Bucket for Shared Files
 
-🌩️ Cloudfront Distribution
+🌩️ Cloudfront Distributions
+
+🌩️ Edge@Lambda - Viewer Request Handler
 
 🌩️ DynamoDB
 
@@ -23,63 +27,6 @@ In **AWS 🌩️ FileShare** project is the extended version of previous project
 Goal of the application is to share your assets in s3 with your client in secure way. Many companies have restriction of sharing data via email and email supports upto **25MB**, which is too small for business needs.
 
 Using this application, you could share your assets from your s3 bucket with your client over your web application securely via access key.
-
-## 📜 How To Guide - Admin
-1. After deployment of cdk infrastructure, terminal will print out the credentials of admin user and url of application domain.
-
-2. Open the application domain in browser and login with credentials as admin.
-![](./docs/login_admin.png)
-
-3. Specify your folder in input field, where your file will be saved into.
-![](./docs/main_input.png)
-
-4. Click upload button and select or drag drop your file into the dialog form. *You can attach only **one file** at the same time.*
-![](./docs/upload.png)
-
-5. Click submit button in this dialog.   
-![](./docs/uploaded.png)
-- ✅ It will request a **presigned put url** of S3 bucket.
-
-- ✅ Then upload your file using this url into S3 bucket.
-
-- ✅ Finally app requests an access key. Lambda function in behind will generate an asset entity in DynamoDB which contains access key, presigned get url etc.
-
-- ⚠️ Depending on the size of your file, it might be able to take some time to upload file into S3 bucket.
-- ⚠️ Max 2GB file is allowed for uploading. 
-
-6. Click copy clipboard button and share this url with your client. Client can download your file via access key provided in this url as query parameter.
-![](./docs/clipboard.png)
-
-## 📜 How To Guide - Client
-1. Open given URL sent by admin user.
-
-2. Login into the application as client.
-
-3. If client opened the application via given URL, access key is set in input field automatically.
-![](./docs/download_copied.png)
-
-4. Click download button.
-- ✅ It will request to retrieve **presigned get url** from DyanmoDB using this access key.
-
-- ✅ Then download the shared file using this url.
-
-- ⚠️ Depending on the size of your file, it might be able to take some time to download file.
-
-- ⚠️ Presigned Get Url is configured with 24 hours of expiring time. 
-
-- ⚠️ This URL can be consumed for upto 100 requests.
-
-## 🚀 Application
-Application is secured with cognito and api is secured with lambda authorizer which validates the idToken from cookie header in request.
-
-### 📂 Upload
-![](./docs/main_input.png)
-Admin user can upload a sharing file in this main page. User should provide a folder name, where the file is saved into in S3 Bucket.
-
-### 📂 Download
-![](./docs/download_copied.png)
-Client user can download a shared file in this downloader page. User can put access key manually or if they use the url provided by admin, access key will be set automatically.
-
 
 ## ✅ Requirements 
 * [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed
@@ -143,6 +90,11 @@ Endpoint: api/downloads
 Header: {Authorization: idToken}
 ```
 
+## 🔥 Pre-Deploy (optional)
+1. In Route53, register your domain.
+2. Create HostedZone of protected.<your_domain> 
+3. Add NS values of public hosted zone of your protected.<your_domain> into public hosted zone of your domain. **This enables domain delegation.**
+
 ## 🔥 Deploy
 
 1. Clone the project to your local working directory
@@ -167,10 +119,61 @@ cd serverless-web-hosting/serverless-file-share/ci
 
 5. Run deploy script
 ```
-chmod +x deploy.sh && ./deploy.sh <your_aws_profile_in_session_terminal>
+chmod +x ci.sh && ./ci.sh <your_aws_domain>
 ```
+- If you don't provide your domain, cdk will deploy only FileShare service with default distribution domain. It will not deploy a landing zone application and certifications.
 
-6. Output will provide you the credentials of the admin user (username = iam) and client user (username=youare), as well as the domain of the cloudfront distribution and s3 bucket name for your sharing files.
+6. After deployment, open the domain from output. 
+
+7. Sign up with your email. It will add user in userpool with default role.
+
+8. If you want to update your role, please go to cognito and update isAdmin attribute to true.
+
+## 📜 How To Guide - Share
+1. Open the application domain in browser and sign up to the application
+![](./docs/login.png)
+
+2. **Go to cognito userpool, then update isAdmin field to true to assign an admin role.**
+
+3. In Application, click select button
+![](./docs/select.png)
+
+4. Choose or drag drop your file into the dialog form. *You can attach only **one file** at the same time.*
+![](./docs/upload.png)
+
+5. Click submit button in this dialog.   
+![](./docs/uploaded.png)
+- ✅ It will request a **presigned put url** of S3 bucket.
+
+- ✅ Then upload your file using this url into S3 bucket.
+
+- ✅ Finally app requests an access key. Lambda function in behind will generate an asset entity in DynamoDB which contains access key, presigned get url etc.
+
+- ⚠️ Depending on the size of your file, it might be able to take some time to upload file into S3 bucket.
+
+- ⚠️ Max 2GB file is allowed for uploading. 
+
+6. Click copy clipboard button and share this url with your client. Client can download your file via access key provided in this url as query parameter.
+![](./docs/clipboard.png)
+
+## 📜 How To Guide - Download
+1. Open given URL sent by admin user.
+
+2. Login into the application as client.
+
+3. If client opened the application via given URL, access key is set in input field automatically.
+![](./docs/download_copied.png)
+
+4. Click download button.
+- ✅ It will request to retrieve **presigned get url** from DyanmoDB using this access key.
+
+- ✅ Then download the shared file using this url.
+
+- ⚠️ Depending on the size of your file, it might be able to take some time to download file.
+
+- ⚠️ Presigned Get Url is configured with 24 hours of expiring time. 
+
+- ⚠️ This URL can be consumed for upto 100 requests.
 
 ## 🔨 Cleanup
 

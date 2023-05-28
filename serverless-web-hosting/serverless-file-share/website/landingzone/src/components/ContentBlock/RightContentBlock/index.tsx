@@ -35,13 +35,13 @@ const RightBlock = ({
               <Content>{t(content)}</Content>
               <ButtonWrapper>
                 {typeof button === "object" &&
-                  button.map((item: any, id: number) => {
+                  button.map((item: any, btnId: number) => {
                     return (
                       <Button
-                        key={id}
+                        key={btnId}
                         color={item.color}
                         fixedWidth={true}
-                        onClick={() => scrollTo("about")}
+                        onClick={() => scrollTo(item.id)}
                       >
                         {t(item.title)}
                       </Button>
