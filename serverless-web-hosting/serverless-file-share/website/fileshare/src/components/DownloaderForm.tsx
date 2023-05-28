@@ -94,7 +94,7 @@ function DownloaderForm() {
           </div>
           <div className="head-div">
             <p className="head">
-              Provide Your <span>Downlad Key</span>
+              Provide Your <span>Download Key</span>
             </p>
           </div>
           <div className="outer">
