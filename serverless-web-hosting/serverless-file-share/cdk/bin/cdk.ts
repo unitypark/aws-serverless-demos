@@ -5,8 +5,9 @@ import { FileShareProtectedServiceStack } from '../lib/file-share-protected-serv
 
 const app = new cdk.App();
 
-const appPrefix = 'file-share-service'
+const appPrefix = 'fileshare-service'
 const edgeRegion = 'us-east-1';
+const protectedServiceName = 'fileshare';
 const domainName = app.node.tryGetContext('domainName');
 
 if (domainName === undefined) {
@@ -25,6 +26,7 @@ if (domainName === undefined) {
       region: edgeRegion,
     },
     domainName: domainName,
+    protectedServiceName: protectedServiceName,
     crossRegionReferences: true,
   });
 
@@ -47,7 +49,7 @@ if (domainName === undefined) {
     },
     appPrefix: appPrefix,
     edgeRegion: edgeRegion,
-    protectedDomainName: `protected.${domainName}`,
+    protectedDomainName: `${protectedServiceName}.${domainName}`,
     certificate: distributionCertificationStack.protectedServiceCertificate,
     crossRegionReferences: true,
   })

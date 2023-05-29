@@ -51,7 +51,7 @@ const Header = ({ t }: any) => {
         </CustomNavLinkSmall>
         <CustomNavLinkSmall
           style={{ width: "180px" }}
-          onClick={() => window.location.href = `${window.location.protocol}//protected.${window.location.hostname.replace('www.', '')}`}
+          onClick={() => window.location.href = `${window.location.protocol}//fileshare.${window.location.hostname.replace('www.', '')}`}
         >
           <Span>
             <Button>{t("FileShare Service")}</Button>

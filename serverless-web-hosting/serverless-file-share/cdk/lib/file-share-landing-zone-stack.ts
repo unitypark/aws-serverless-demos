@@ -4,17 +4,10 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, Distribution, ErrorResponse, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
-import { Duration } from 'aws-cdk-lib';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-
-enum HttpStatus {
-  OK = 200,
-  Unauthorized = 403,
-  NotFound = 404
-}
 
 interface Props extends cdk.StackProps {
   appPrefix: string
@@ -47,7 +40,6 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
     });
     landingZoneWebSiteBucket.grantRead(cloudfrontOAI);
 
-    
     /**
      * Distribution
      */    

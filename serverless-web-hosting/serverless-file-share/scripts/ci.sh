@@ -39,5 +39,5 @@ if [ -z "$1" ]; then
     npx aws-cdk deploy --all --require-approval never
 else
     echo "Deploy CDK application with domain $1"
-    npx aws-cdk deploy --all --require-approval never --context domainName=$1
+    npx aws-cdk deploy --all --require-approval never --context domainName=$1 --context domainName=$1
 fi

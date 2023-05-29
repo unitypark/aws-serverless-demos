@@ -92,8 +92,8 @@ Header: {Authorization: idToken}
 
 ## 🔥 Pre-Deploy (optional)
 1. In Route53, register your domain.
-2. Create HostedZone of protected.<your_domain> 
-3. Add NS values of public hosted zone of your protected.<your_domain> into public hosted zone of your domain. **This enables domain delegation.**
+2. Create HostedZone of fileshare.<your_domain> 
+3. Add NS values of public hosted zone of your fileshare.<your_domain> into public hosted zone of your domain. **This enables domain delegation.**
 
 ## 🔥 Deploy
 
@@ -112,9 +112,9 @@ npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualif
 npx aws-cdk bootstrap --toolkit-stack-name 'CDKToolkit-Serverless-Demo' --qualifier 'demo' --cloudformation-execution-policies 'arn:aws:iam::aws:policy/AdministratorAccess' aws://<YOUR_AWS_ACCOUNT_ID>/us-east-1
 ```
 
-4. Change the working directory to ci's directory
+4. Change the working directory to scripts's directory
 ```
-cd serverless-web-hosting/serverless-file-share/ci
+cd serverless-web-hosting/serverless-file-share/scripts
 ```
 
 5. Run deploy script

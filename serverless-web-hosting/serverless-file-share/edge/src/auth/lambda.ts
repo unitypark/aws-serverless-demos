@@ -3,7 +3,7 @@ import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { SingleAuthenticator } from '../helper/async-auth';
 import { LogLevel, Region } from '../helper/enums';
 
-const appPrefix = 'file-share-service'
+const appPrefix = 'fileshare-service'
 
 const ssmParamNames = {
   userPoolIdParamName: `/${appPrefix}/cognito/userpool/id`,

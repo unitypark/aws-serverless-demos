@@ -8,6 +8,7 @@ import {
 
 interface Props extends StackProps {
   domainName: string
+  protectedServiceName: string
 }
 
 export class DistributionCertificate extends Stack {
@@ -22,7 +23,7 @@ export class DistributionCertificate extends Stack {
     });
 
     const protectedServiceZoneHostedZone = PublicHostedZone.fromLookup(this, "ProtectedPublicHostedZoneImport", { 
-      domainName: `protected.${props.domainName}`
+      domainName: `${props.protectedServiceName}.${props.domainName}`
     });
 
     this.landingZoneCertificate = new Certificate(this, "LandingZoneDistributionCertificate", {
@@ -31,7 +32,7 @@ export class DistributionCertificate extends Stack {
     });
 
     this.protectedServiceCertificate = new Certificate(this, "ProtectedServiceDistributionCertificate", {
-      domainName: `protected.${props.domainName}`,
+      domainName: `${props.protectedServiceName}.${props.domainName}`,
       validation: CertificateValidation.fromDns(protectedServiceZoneHostedZone),
     });
   }
