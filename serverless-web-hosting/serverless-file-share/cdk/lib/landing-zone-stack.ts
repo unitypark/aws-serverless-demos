@@ -5,17 +5,18 @@ import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, Viewer
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { ARecord, IHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 interface Props extends cdk.StackProps {
   appPrefix: string
   publicDomainName?: string
+  landingZoneHostedZone?: IHostedZone
   certificate?: Certificate
 }
 
-export class FileShareServiceLandingZoneStack extends cdk.Stack {
+export class LandingZoneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
@@ -64,14 +65,10 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
 
     const DISTRIBUTION_LANDING_ZONE_URL = props.publicDomainName === undefined ? `https://${distribution.distributionDomainName}` : `https://${props.publicDomainName}`
 
-    if (props.publicDomainName !== undefined) {
-      const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
-        domainName: props.publicDomainName 
-      });
-  
+    if (props.publicDomainName !== undefined && props.landingZoneHostedZone !== undefined) {
       new ARecord(this, 'distribution-ARecord', {
         recordName: props.publicDomainName,
-        zone: hostedZone,
+        zone: props.landingZoneHostedZone,
         target: RecordTarget.fromAlias(
           new CloudFrontTarget(distribution)
         ),

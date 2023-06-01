@@ -1,17 +1,17 @@
 import * as cdk from 'aws-cdk-lib';
-import { FileShareServiceLandingZoneStack } from '../lib/file-share-landing-zone-stack';
+import { LandingZoneStack } from '../lib/landing-zone-stack';
 import { DistributionCertificate } from '../lib/certificate-stack';
-import { FileShareProtectedServiceStack } from '../lib/file-share-protected-service-stack';
+import { FileShareServiceStack } from '../lib/file-share-service-stack';
 
 const app = new cdk.App();
 
-const appPrefix = 'fileshare-service'
+const appPrefix = 'ctse'
 const edgeRegion = 'us-east-1';
-const protectedServiceName = 'fileshare';
-const domainName = app.node.tryGetContext('domainName');
+const fileshareServiceName = 'fileshare';
+const landingZoneDomainName = app.node.tryGetContext('domainName');
 
-if (domainName === undefined) {
-  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
+if (landingZoneDomainName === undefined) {
+  new LandingZoneStack(app, appPrefix + '-landing-zone-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
@@ -24,31 +24,33 @@ if (domainName === undefined) {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: edgeRegion,
     },
-    domainName: domainName,
-    protectedServiceName: protectedServiceName,
+    domainName: landingZoneDomainName,
+    fileshareServiceName: fileshareServiceName,
     crossRegionReferences: true,
   });
   
-  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
+  new LandingZoneStack(app, appPrefix + '-landing-zone-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
     appPrefix: appPrefix,
-    publicDomainName: domainName,
+    publicDomainName: landingZoneDomainName,
+    landingZoneHostedZone: distributionCertificationStack.landingZoneHostedZone,
     certificate: distributionCertificationStack.landingZoneCertificate,
     crossRegionReferences: true,
   })
   
-  new FileShareProtectedServiceStack(app, appPrefix + '-protected-service-stack', {
+  new FileShareServiceStack(app, appPrefix + '-fileshare-service-stack', {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
     appPrefix: appPrefix,
     edgeRegion: edgeRegion,
-    protectedDomainName: `${protectedServiceName}.${domainName}`,
-    certificate: distributionCertificationStack.protectedServiceCertificate,
+    fileshareServiceDomainName: `${fileshareServiceName}.${landingZoneDomainName}`,
+    fileshareServiceZoneHostedZone: distributionCertificationStack.fileshareServiceZoneHostedZone,
+    certificate: distributionCertificationStack.fileshareServiceCertificate,
     crossRegionReferences: true,
   })
 }

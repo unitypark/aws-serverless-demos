@@ -12,7 +12,7 @@ import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { ARecord, IHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import * as serverless from 'aws-cdk-lib/aws-sam';
@@ -31,11 +31,12 @@ enum LambdaType {
 interface Props extends cdk.StackProps {
   appPrefix: string
   edgeRegion: string
-  protectedDomainName: string
+  fileshareServiceDomainName: string
+  fileshareServiceZoneHostedZone: IHostedZone
   certificate: Certificate
 }
 
-export class FileShareProtectedServiceStack extends cdk.Stack {
+export class FileShareServiceStack extends cdk.Stack {
   public readonly cloudfrontOAI: cdk.aws_cloudfront.OriginAccessIdentity;
   public readonly cognito: CognitoUserPool;
   public readonly s3OriginDomainName: string;
@@ -115,7 +116,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
 
     this.s3OriginDomainName = `${fileShareServiceWebSiteBucket.bucketName}.s3.${this.region}.amazonaws.com`
 
-    const fileshareServiceUrl = `https://${props.protectedDomainName}`
+    const fileshareServiceUrl = `https://${props.fileshareServiceDomainName}`
     
     this.cognito.addClient(
       `${props.appPrefix}-userPool-app-client`, 
@@ -237,7 +238,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       {
         comment: `${props.appPrefix}-distribution`,
         certificate: props.certificate,
-        domainNames: [ props.protectedDomainName ],
+        domainNames: [ props.fileshareServiceDomainName ],
         defaultRootObject: "index.html",
         errorResponses: [errorResponse403, errorResponse404],
         defaultBehavior: {
@@ -263,13 +264,9 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       }
     );
 
-    const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
-      domainName: `${props.protectedDomainName}`
-    });
-
     new ARecord(this, 'distribution-ARecord', {
-      recordName: props.protectedDomainName,
-      zone: hostedZone,
+      recordName: props.fileshareServiceDomainName,
+      zone: props.fileshareServiceZoneHostedZone,
       target: RecordTarget.fromAlias(
         new CloudFrontTarget(distribution)
       ),
