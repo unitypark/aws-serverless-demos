@@ -1,39 +1,42 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { PublicHostedZone } from "aws-cdk-lib/aws-route53";
+import { IHostedZone, PublicHostedZone } from "aws-cdk-lib/aws-route53";
 import {
   Certificate,
   CertificateValidation,
+  ICertificate,
 } from "aws-cdk-lib/aws-certificatemanager";
 
 interface Props extends StackProps {
   domainName: string
-  protectedServiceName: string
+  fileshareServiceName: string
 }
 
 export class DistributionCertificate extends Stack {
   public readonly landingZoneCertificate: Certificate;
-  public readonly protectedServiceCertificate: Certificate;
+  public readonly fileshareServiceCertificate: Certificate;
+  public readonly landingZoneHostedZone: IHostedZone;
+  public readonly fileshareServiceZoneHostedZone: IHostedZone;
 
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const landingZoneHostedZone = PublicHostedZone.fromLookup(this, "LandingZonePublicHostedZoneImport", { 
+    this.landingZoneHostedZone = PublicHostedZone.fromLookup(this, "LandingZonePublicHostedZoneImport", { 
       domainName: props.domainName 
     });
 
-    const protectedServiceZoneHostedZone = PublicHostedZone.fromLookup(this, "ProtectedPublicHostedZoneImport", { 
-      domainName: `${props.protectedServiceName}.${props.domainName}`
+    this.fileshareServiceZoneHostedZone = PublicHostedZone.fromLookup(this, "FileShareServicePublicHostedZoneImport", { 
+      domainName: `${props.fileshareServiceName}.${props.domainName}`
     });
 
     this.landingZoneCertificate = new Certificate(this, "LandingZoneDistributionCertificate", {
       domainName: props.domainName,
-      validation: CertificateValidation.fromDns(landingZoneHostedZone),
+      validation: CertificateValidation.fromDns(this.landingZoneHostedZone),
     });
 
-    this.protectedServiceCertificate = new Certificate(this, "ProtectedServiceDistributionCertificate", {
-      domainName: `${props.protectedServiceName}.${props.domainName}`,
-      validation: CertificateValidation.fromDns(protectedServiceZoneHostedZone),
+    this.fileshareServiceCertificate = new Certificate(this, "FileshareServiceCertificate", {
+      domainName: `${props.fileshareServiceName}.${props.domainName}`,
+      validation: CertificateValidation.fromDns(this.fileshareServiceZoneHostedZone),
     });
   }
 }
