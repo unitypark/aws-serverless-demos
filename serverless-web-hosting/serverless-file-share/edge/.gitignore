@@ -1,6 +1,0 @@
-*.js
-!jest.config.js
-!webpack.config.js
-*.d.ts
-node_modules
-dist

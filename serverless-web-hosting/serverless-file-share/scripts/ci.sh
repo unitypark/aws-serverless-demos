@@ -18,9 +18,6 @@ cd ../website/landingzone && npm ci && npm run build
 echo "Build fileshare service application"
 cd ../fileshare && npm ci && npm run build
 
-echo "Build edge lambda"
-cd ../../edge && npm ci && npm run webpack
-
 echo "Build CDK application"
 cd ../cdk && npm ci && npm run build
 

@@ -8,7 +8,6 @@ import path = require('path');
 import { GoLambdaFunction } from './construct/goLambdaFunction';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { CorsHttpMethod, HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
-import { CrossRegionParameter } from "./construct/cross-region-parameter";
 import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
@@ -125,7 +124,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       fileshareServiceUrl + "/signin"
       ],
       [
-        'http://localhost:3000/signout',
+        'http://localhost:3000/',
         fileshareServiceUrl + "/",
       ]
     );
