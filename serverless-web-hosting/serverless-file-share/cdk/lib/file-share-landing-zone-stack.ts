@@ -12,8 +12,8 @@ import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 interface Props extends cdk.StackProps {
   appPrefix: string
   edgeRegion: string
-  publicDomainName?: string
-  certificate?: Certificate
+  publicDomainName: string
+  certificate: Certificate
 }
 
 export class FileShareServiceLandingZoneStack extends cdk.Stack {
@@ -49,7 +49,7 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
       {
         comment: `${props.appPrefix}-landing-zone-distribution`,
         certificate: props.certificate,
-        domainNames: props.publicDomainName === undefined ? [] : [props.publicDomainName],
+        domainNames: [props.publicDomainName],
         defaultRootObject: "index.html",
         defaultBehavior: {
           origin: new S3Origin(landingZoneWebSiteBucket, {
@@ -62,22 +62,18 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
         },
       }
     );
+    
+    const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
+      domainName: props.publicDomainName 
+    });
 
-    const DISTRIBUTION_LANDING_ZONE_URL = props.publicDomainName === undefined ? `https://${distribution.distributionDomainName}` : `https://${props.publicDomainName}`
-
-    if (props.publicDomainName !== undefined) {
-      const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
-        domainName: props.publicDomainName 
-      });
-  
-      new ARecord(this, 'distribution-ARecord', {
-        recordName: props.publicDomainName,
-        zone: hostedZone,
-        target: RecordTarget.fromAlias(
-          new CloudFrontTarget(distribution)
-        ),
-      });
-    }
+    new ARecord(this, 'distribution-ARecord', {
+      recordName: props.publicDomainName,
+      zone: hostedZone,
+      target: RecordTarget.fromAlias(
+        new CloudFrontTarget(distribution)
+      ),
+    });
 
     new BucketDeployment(this, props.appPrefix + '-deploy-landingzone-website-asset', {
       sources: [
@@ -92,6 +88,6 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
       retainOnDelete: false,
     });
     
-    new cdk.CfnOutput(this, 'CloudfrontLandingZoneDistributionDomain', { value: DISTRIBUTION_LANDING_ZONE_URL});
+    new cdk.CfnOutput(this, 'LandingZoneUrl', { value: `https://${props.publicDomainName}`});
   }
 }

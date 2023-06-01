@@ -43,8 +43,6 @@ type SingleAuthenticatorParams = {
           logLevel,
         });
       }
-
-      
       return this._authenticatorInstance.handle(event);
     }
   }

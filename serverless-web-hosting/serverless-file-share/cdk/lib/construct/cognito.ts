@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 import { AccountRecovery, BooleanAttribute, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
 import { GoLambdaFunction } from './goLambdaFunction';
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 
@@ -15,6 +15,7 @@ export class CognitoUserPool extends Construct {
     public readonly domainPrefix: string;
 
     public userPoolClient: UserPoolClient;
+    public userPoolClientSecret: SecretValue;
 
     constructor(scope: Construct, id: string, props: CognitoUserPoolProps) {
     super(scope, id);
@@ -72,9 +73,10 @@ export class CognitoUserPool extends Construct {
     });
   }
 
-  addClient(id: string, callbackUrls: string[]) {
+  addClient(id: string, callbackUrls: string[], signoutUrls: string[]) {
     this.userPoolClient = this.userPool.addClient(id, {
         userPoolClientName: this.domainPrefix + "-app-client",
+        generateSecret: true,
         authFlows: {
           userPassword: true,
         },
@@ -86,6 +88,7 @@ export class CognitoUserPool extends Construct {
             clientCredentials: false,
           },
           callbackUrls: callbackUrls,
+          logoutUrls: signoutUrls,
           scopes: [ OAuthScope.EMAIL, OAuthScope.OPENID, OAuthScope.PROFILE ],
         },
         supportedIdentityProviders: [
@@ -97,5 +100,6 @@ export class CognitoUserPool extends Construct {
         preventUserExistenceErrors: true,
       }
     );
+    this.userPoolClientSecret = this.userPoolClient.userPoolClientSecret
   }
 }

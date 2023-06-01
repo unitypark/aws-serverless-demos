@@ -2,15 +2,13 @@ import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, OriginProtocolPolicy, OriginSslPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import path = require('path');
 import { GoLambdaFunction } from './construct/goLambdaFunction';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { CorsHttpMethod, HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { CrossRegionParameter } from "./construct/cross-region-parameter";
-import { NodeLambdaEdgeFunction } from './construct/edge-lambda';
 import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
 import { Duration } from 'aws-cdk-lib';
@@ -18,6 +16,8 @@ import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import * as serverless from 'aws-cdk-lib/aws-sam';
+import { Version } from 'aws-cdk-lib/aws-lambda';
 
 enum HttpStatus {
   OK = 200,
@@ -32,11 +32,15 @@ enum LambdaType {
 interface Props extends cdk.StackProps {
   appPrefix: string
   edgeRegion: string
-  protectedDomainName?: string
-  certificate?: Certificate
+  protectedDomainName: string
+  certificate: Certificate
 }
 
 export class FileShareProtectedServiceStack extends cdk.Stack {
+  public readonly cloudfrontOAI: cdk.aws_cloudfront.OriginAccessIdentity;
+  public readonly cognito: CognitoUserPool;
+  public readonly s3OriginDomainName: string;
+
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
@@ -67,7 +71,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
     /**
      * Cognito
      */
-    const cognito = new CognitoUserPool(this, props.appPrefix + '-cognito-userPool', {
+    this.cognito = new CognitoUserPool(this, props.appPrefix + '-cognito-userPool', {
       region: this.region,
       appPrefix: props.appPrefix,
     });
@@ -99,20 +103,6 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
     });
 
     /**
-     * Edge Lambda Function
-     */
-    const authLambda = new NodeLambdaEdgeFunction(this, props.appPrefix + '-node-lambda-edge-auth', {
-      path: path.join(__dirname, '../../edge/dist'),
-      handler: 'lambda.handler'
-    })
-    authLambda.fn.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['ssm:GetParameter'],
-      resources: [
-        `arn:aws:ssm:${props.edgeRegion}:${this.account}:parameter/${props.appPrefix}/*`
-      ]
-    }));
-
-    /**
      * S3 Website bucket 
      */
     const fileShareServiceWebSiteBucket = new s3.Bucket(this, props.appPrefix + '-fileshare-service-website-bucket', {
@@ -124,13 +114,29 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       versioned: true,
     });
 
+    this.s3OriginDomainName = `${fileShareServiceWebSiteBucket.bucketName}.s3.${this.region}.amazonaws.com`
+
+    const fileshareServiceUrl = `https://${props.protectedDomainName}`
+    
+    this.cognito.addClient(
+      `${props.appPrefix}-userPool-app-client`, 
+      [
+      'http://localhost:3000/signin',
+      fileshareServiceUrl + "/signin"
+      ],
+      [
+        'http://localhost:3000/signout',
+        fileshareServiceUrl + "/",
+      ]
+    );
+
     /**
      * Cloudfront 
      */
-    const cloudfrontOAI = new OriginAccessIdentity(this, props.appPrefix + '-oai', {
+    this.cloudfrontOAI = new OriginAccessIdentity(this, props.appPrefix + '-oai', {
       comment: props.appPrefix + '-oai',
     });
-    fileShareServiceWebSiteBucket.grantRead(cloudfrontOAI);
+    fileShareServiceWebSiteBucket.grantRead(this.cloudfrontOAI);
 
     const errorResponse403: ErrorResponse = {
       httpStatus: HttpStatus.Unauthorized,
@@ -169,9 +175,58 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       queryStringBehavior: CacheQueryStringBehavior.all(),
     });
 
-    const originRequestEdgeLambda: EdgeLambda = {
+    const dummyorigin = new HttpOrigin('will-never-be-reached.org', {
+      protocolPolicy: OriginProtocolPolicy.MATCH_VIEWER,
+      originSslProtocols: [OriginSslPolicy.SSL_V3]
+    });
+
+    const httpHeaders = JSON.stringify({"Content-Security-Policy": "default-src 'none'; img-src 'self'; script-src 'self' https://code.jquery.com https://stackpath.bootstrapcdn.com; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com; object-src 'none'; connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com",  "Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",  "Referrer-Policy": "same-origin",  "X-XSS-Protection": "1; mode=block",  "X-Frame-Options": "DENY",  "X-Content-Type-Options": "nosniff"})
+
+    const authAtEdge = new serverless.CfnApplication(this, "AuthorizationAtEdge", {
+      location: {
+        applicationId:
+          "arn:aws:serverlessrepo:us-east-1:520945424137:applications/cloudfront-authorization-at-edge",
+        semanticVersion: "2.1.5",
+      },
+      parameters: {
+        CookieCompatibility: "amplify",
+        CreateCloudFrontDistribution: "false",
+        EnableSPAMode: "false",
+        HttpHeaders: httpHeaders,
+        LogLevel: "debug",
+        OAuthScopes: "email, profile, openid",
+        OriginAccessIdentity: this.cloudfrontOAI.originAccessIdentityId,
+        RedirectPathSignIn: "/signin",
+        RedirectPathSignOut: "/",
+        RewritePathWithTrailingSlashToIndex: "false",
+        SignOutUrl: "/signout",
+        UserPoolArn: this.cognito.userPool.userPoolArn,
+        UserPoolAuthDomain: this.cognito.cognitoDomain,
+        UserPoolClientId: this.cognito.userPoolClient.userPoolClientId,
+        UserPoolClientSecret: this.cognito.userPoolClient.userPoolClientSecret.unsafeUnwrap(),
+        RedirectPathAuthRefresh: "/refreshauth",
+        S3OriginDomainName: this.s3OriginDomainName,
+      },
+    });
+
+    /**
+     * Edge@Lambda
+     */
+    const checkAuthEdge: EdgeLambda = {
       eventType: LambdaEdgeEventType.VIEWER_REQUEST,
-      functionVersion: authLambda.fn.currentVersion,
+      functionVersion: Version.fromVersionArn(this, "CheckAuthHandler", authAtEdge.getAtt("Outputs.CheckAuthHandler").toString())
+    };
+    const parseAuthEdge: EdgeLambda = {
+      eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+      functionVersion: Version.fromVersionArn(this, "ParseAuthHandler", authAtEdge.getAtt("Outputs.ParseAuthHandler").toString())
+    };
+    const refreshAuthEdge: EdgeLambda = {
+      eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+      functionVersion: Version.fromVersionArn(this, "RefreshAuthHandler", authAtEdge.getAtt("Outputs.RefreshAuthHandler").toString())
+    };
+    const signOutEdge: EdgeLambda = {
+      eventType: LambdaEdgeEventType.VIEWER_REQUEST,
+      functionVersion: Version.fromVersionArn(this, "SignOutHandler", authAtEdge.getAtt("Outputs.SignOutHandler").toString())
     };
     
     /**
@@ -183,17 +238,17 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       {
         comment: `${props.appPrefix}-distribution`,
         certificate: props.certificate,
-        domainNames: props.protectedDomainName === undefined ? [] : [ props.protectedDomainName ],
+        domainNames: [ props.protectedDomainName ],
         defaultRootObject: "index.html",
         errorResponses: [errorResponse403, errorResponse404],
         defaultBehavior: {
           origin: new S3Origin(fileShareServiceWebSiteBucket, {
-            originAccessIdentity: cloudfrontOAI,
+            originAccessIdentity: this.cloudfrontOAI,
           }),
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           compress: true,
-          edgeLambdas: [originRequestEdgeLambda],
+          edgeLambdas: [checkAuthEdge],
           cachePolicy: webOriginCachePolicy,
         },
         additionalBehaviors: {
@@ -208,26 +263,31 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
         },
       }
     );
-    const DISTRIBUTION_PROTECTED_SERVICE_URL = props.protectedDomainName === undefined ? `https://${distribution.distributionDomainName}` : `https://${props.protectedDomainName}`
 
-    if (props.protectedDomainName !== undefined) {
-      const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
-        domainName: `${props.protectedDomainName}`
+    const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
+      domainName: `${props.protectedDomainName}`
     });
-  
-      new ARecord(this, 'distribution-ARecord', {
-        recordName: props.protectedDomainName,
-        zone: hostedZone,
-        target: RecordTarget.fromAlias(
-          new CloudFrontTarget(distribution)
-        ),
-      });
-    }
-    
-    cognito.addClient(`${props.appPrefix}-userPool-app-client`, [
-      'http://localhost:3000',
-      DISTRIBUTION_PROTECTED_SERVICE_URL,
-    ]);
+
+    new ARecord(this, 'distribution-ARecord', {
+      recordName: props.protectedDomainName,
+      zone: hostedZone,
+      target: RecordTarget.fromAlias(
+        new CloudFrontTarget(distribution)
+      ),
+    });
+
+    distribution.addBehavior("/signin", dummyorigin, {
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      edgeLambdas: [parseAuthEdge]
+    });
+    distribution.addBehavior("/signout", dummyorigin, {
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      edgeLambdas: [signOutEdge]
+    });
+    distribution.addBehavior("/refreshauth", dummyorigin, {
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      edgeLambdas: [refreshAuthEdge]
+    });
 
     new BucketDeployment(this, props.appPrefix + '-deploy-fileshare-service-website-asset', {
       sources: [
@@ -262,7 +322,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
           ],
           allowedOrigins: [
               'http://localhost:3000',
-              DISTRIBUTION_PROTECTED_SERVICE_URL,
+              fileshareServiceUrl,
             ],
           allowedHeaders: ['*'],
         },
@@ -318,9 +378,9 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       environmentVariables: {
         'URL_TABLE': ddbTable.tableName,
         'FILE_SHARE_BUCKET': fileShareAssetBucket.bucketName,
-        'JWKS_URL': `https://cognito-idp.${this.region}.amazonaws.com/${cognito.userPool.userPoolId}/.well-known/jwks.json`,
-        'ISS': `https://cognito-idp.${this.region}.amazonaws.com/${cognito.userPool.userPoolId}`,
-        'COGNITO_USER_POOL_CLIENT_ID': cognito.userPoolClient.userPoolClientId,
+        'JWKS_URL': `https://cognito-idp.${this.region}.amazonaws.com/${this.cognito.userPool.userPoolId}/.well-known/jwks.json`,
+        'ISS': `https://cognito-idp.${this.region}.amazonaws.com/${this.cognito.userPool.userPoolId}`,
+        'COGNITO_USER_POOL_CLIENT_ID': this.cognito.userPoolClient.userPoolClientId,
       }
     });
     const lambdaAuthorizer = new HttpLambdaAuthorizer(props.appPrefix + '-cookie-authorizer', authHandler.fn, {
@@ -367,27 +427,7 @@ export class FileShareProtectedServiceStack extends cdk.Stack {
       }),
       authorizer: lambdaAuthorizer,
     });
-
-    /**
-     * Put Cognito Values to SSM in us-east-1
-     */
-    new CrossRegionParameter(this, props.appPrefix + '-ssm-cognito-userPool-id', {
-      region: props.edgeRegion,
-      name: `/${props.appPrefix}/cognito/userpool/id`,
-      value: cognito.userPool.userPoolId,
-    });
-    new CrossRegionParameter(this, props.appPrefix + '-ssm-cognito-userPool-client-id', {
-      region: props.edgeRegion,
-      name: `/${props.appPrefix}/cognito/userpool/client/id`,
-      value: cognito.userPoolClient.userPoolClientId,
-    });
-    new CrossRegionParameter(this, props.appPrefix + '-ssm-cognito-userPool-domain', {
-      region: props.edgeRegion,
-      name: `/${props.appPrefix}/cognito/userpool/domain`,
-      value: cognito.cognitoDomain,
-    });
     
-    new cdk.CfnOutput(this, 'FileShareAssetBucketName', { value: fileShareAssetBucket.bucketName });
-    new cdk.CfnOutput(this, 'CloudfrontProtectedDistributionDomain', { value: DISTRIBUTION_PROTECTED_SERVICE_URL});
+    new cdk.CfnOutput(this, 'FileShareSerivceUrl', { value: fileshareServiceUrl});
   }
 }
