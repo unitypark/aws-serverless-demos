@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, Distribution, ErrorResponse, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -11,9 +11,8 @@ import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 interface Props extends cdk.StackProps {
   appPrefix: string
-  edgeRegion: string
-  publicDomainName: string
-  certificate: Certificate
+  publicDomainName?: string
+  certificate?: Certificate
 }
 
 export class FileShareServiceLandingZoneStack extends cdk.Stack {
@@ -49,7 +48,7 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
       {
         comment: `${props.appPrefix}-landing-zone-distribution`,
         certificate: props.certificate,
-        domainNames: [props.publicDomainName],
+        domainNames: props.publicDomainName === undefined ? [] : [props.publicDomainName],
         defaultRootObject: "index.html",
         defaultBehavior: {
           origin: new S3Origin(landingZoneWebSiteBucket, {
@@ -62,18 +61,22 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
         },
       }
     );
-    
-    const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
-      domainName: props.publicDomainName 
-    });
 
-    new ARecord(this, 'distribution-ARecord', {
-      recordName: props.publicDomainName,
-      zone: hostedZone,
-      target: RecordTarget.fromAlias(
-        new CloudFrontTarget(distribution)
-      ),
-    });
+    const DISTRIBUTION_LANDING_ZONE_URL = props.publicDomainName === undefined ? `https://${distribution.distributionDomainName}` : `https://${props.publicDomainName}`
+
+    if (props.publicDomainName !== undefined) {
+      const hostedZone = PublicHostedZone.fromLookup(this, "PublicHostedZoneImport", { 
+        domainName: props.publicDomainName 
+      });
+  
+      new ARecord(this, 'distribution-ARecord', {
+        recordName: props.publicDomainName,
+        zone: hostedZone,
+        target: RecordTarget.fromAlias(
+          new CloudFrontTarget(distribution)
+        ),
+      });
+    }
 
     new BucketDeployment(this, props.appPrefix + '-deploy-landingzone-website-asset', {
       sources: [
@@ -88,6 +91,6 @@ export class FileShareServiceLandingZoneStack extends cdk.Stack {
       retainOnDelete: false,
     });
     
-    new cdk.CfnOutput(this, 'LandingZoneUrl', { value: `https://${props.publicDomainName}`});
+    new cdk.CfnOutput(this, 'CloudfrontLandingZoneDistributionDomain', { value: DISTRIBUTION_LANDING_ZONE_URL});
   }
 }

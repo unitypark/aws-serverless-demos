@@ -121,7 +121,7 @@ cd serverless-web-hosting/serverless-file-share/scripts
 ```
 chmod +x ci.sh && ./ci.sh <your_aws_domain>
 ```
-- If you don't provide your domain, cdk will deploy only FileShare service with default distribution domain. It will not deploy a landing zone application and certifications.
+- If you don't provide your domain, cdk will deploy only FileShare service with default distribution domain. It will deploy a landing zone application.
 
 6. After deployment, open the domain from output. 
 
@@ -193,3 +193,5 @@ cdk destroy --all --require-approval never
 ☁️ [aws-s3-presigned-url](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html)
 
 ☁️ [cloudfront-CORS](https://advancedweb.hu/how-cloudfront-solves-cors-problems/)
+
+☁️ [secure-cognito-login-flow](https://advancedweb.hu/how-to-secure-the-cognito-login-flow-with-a-state-nonce-and-pkce/)

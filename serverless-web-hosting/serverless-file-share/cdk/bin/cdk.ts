@@ -10,36 +10,45 @@ const edgeRegion = 'us-east-1';
 const protectedServiceName = 'fileshare';
 const domainName = app.node.tryGetContext('domainName');
 
-const distributionCertificationStack = new DistributionCertificate(app, appPrefix + '-certificate-stack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: edgeRegion,
-  },
-  domainName: domainName,
-  protectedServiceName: protectedServiceName,
-  crossRegionReferences: true,
-});
-
-new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
-  },
-  appPrefix: appPrefix,
-  edgeRegion: edgeRegion,
-  publicDomainName: domainName,
-  certificate: distributionCertificationStack.landingZoneCertificate,
-  crossRegionReferences: true,
-})
-
-new FileShareProtectedServiceStack(app, appPrefix + '-protected-service-stack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
-  },
-  appPrefix: appPrefix,
-  edgeRegion: edgeRegion,
-  protectedDomainName: `${protectedServiceName}.${domainName}`,
-  certificate: distributionCertificationStack.protectedServiceCertificate,
-  crossRegionReferences: true,
-})
+if (domainName === undefined) {
+  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    appPrefix: appPrefix,
+  })
+} else {
+  const distributionCertificationStack = new DistributionCertificate(app, appPrefix + '-certificate-stack', {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: edgeRegion,
+    },
+    domainName: domainName,
+    protectedServiceName: protectedServiceName,
+    crossRegionReferences: true,
+  });
+  
+  new FileShareServiceLandingZoneStack(app, appPrefix + '-landing-zone-stack', {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    appPrefix: appPrefix,
+    publicDomainName: domainName,
+    certificate: distributionCertificationStack.landingZoneCertificate,
+    crossRegionReferences: true,
+  })
+  
+  new FileShareProtectedServiceStack(app, appPrefix + '-protected-service-stack', {
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+    appPrefix: appPrefix,
+    edgeRegion: edgeRegion,
+    protectedDomainName: `${protectedServiceName}.${domainName}`,
+    certificate: distributionCertificationStack.protectedServiceCertificate,
+    crossRegionReferences: true,
+  })
+}
