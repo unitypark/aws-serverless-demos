@@ -1,13 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CachePolicy, Distribution, OriginAccessIdentity, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { BlockPublicAccess, Bucket, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 
 interface Props extends cdk.StackProps {
   appPrefix: string
@@ -23,11 +24,11 @@ export class LandingZoneStack extends cdk.Stack {
     /**
      * S3 Website bucket 
      */
-    const landingZoneWebSiteBucket = new s3.Bucket(this, props.appPrefix + '-landing-zone-website-bucket', {
-      encryption: s3.BucketEncryption.S3_MANAGED,
+    const landingZoneWebSiteBucket = new Bucket(this, props.appPrefix + '-landing-zone-website-bucket', {
+      encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,
       versioned: true,
     });
@@ -40,6 +41,28 @@ export class LandingZoneStack extends cdk.Stack {
     });
     landingZoneWebSiteBucket.grantRead(cloudfrontOAI);
 
+    
+    const distributionLoggingPrefix = "distribution-access-logs/";
+    const distributionLoggingBucket = new Bucket(
+      this,
+      `${props.appPrefix}-distribution-access-logging-bucket`,
+      {
+        objectOwnership: ObjectOwnership.OBJECT_WRITER,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        publicReadAccess: false,
+        versioned: true,
+        lifecycleRules: [
+          {
+            prefix: distributionLoggingPrefix,
+            abortIncompleteMultipartUploadAfter: Duration.days(90),
+            expiration: Duration.days(90),
+          },
+        ],
+      }
+    );
+
     /**
      * Distribution
      */    
@@ -51,6 +74,9 @@ export class LandingZoneStack extends cdk.Stack {
         certificate: props.certificate,
         domainNames: props.publicDomainName === undefined ? [] : [props.publicDomainName],
         defaultRootObject: "index.html",
+        logBucket: distributionLoggingBucket,
+        logFilePrefix: distributionLoggingPrefix,
+        logIncludesCookies: true,
         defaultBehavior: {
           origin: new S3Origin(landingZoneWebSiteBucket, {
             originAccessIdentity: cloudfrontOAI,
@@ -59,6 +85,7 @@ export class LandingZoneStack extends cdk.Stack {
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           compress: true,
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
         },
       }
     );

@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, OriginProtocolPolicy, OriginSslPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, OriginProtocolPolicy, OriginSslPolicy, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
 import { GoLambdaFunction } from './construct/goLambdaFunction';
@@ -151,30 +151,6 @@ export class FileShareServiceStack extends cdk.Stack {
       ttl: Duration.seconds(0),
     };
 
-    const webOriginCachePolicy = new CachePolicy(this, "web-origin-cache-policy", {
-      cachePolicyName: `${props.appPrefix}-web-origin-cache-policy`,
-      comment: "web origin cache policy in distritbution",
-      defaultTtl: Duration.seconds(0),
-      minTtl: Duration.seconds(0),
-      maxTtl: Duration.seconds(1),
-      enableAcceptEncodingBrotli: true,
-      enableAcceptEncodingGzip: true,
-      cookieBehavior: CacheCookieBehavior.none(),
-      queryStringBehavior: CacheQueryStringBehavior.none(),
-    });
-
-    const apiOriginCachePolicy = new CachePolicy(this, "api-origin-cache-policy", {
-      cachePolicyName: `${props.appPrefix}-api-origin-cache-policy`,
-      comment: "api origin cache policy in distritbution",
-      defaultTtl: Duration.seconds(0),
-      minTtl: Duration.seconds(0),
-      maxTtl: Duration.seconds(1),
-      enableAcceptEncodingBrotli: true,
-      enableAcceptEncodingGzip: true,
-      cookieBehavior: CacheCookieBehavior.all(),
-      queryStringBehavior: CacheQueryStringBehavior.all(),
-    });
-
     const dummyorigin = new HttpOrigin('will-never-be-reached.org', {
       protocolPolicy: OriginProtocolPolicy.MATCH_VIEWER,
       originSslProtocols: [OriginSslPolicy.SSL_V3]
@@ -249,7 +225,8 @@ export class FileShareServiceStack extends cdk.Stack {
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           compress: true,
           edgeLambdas: [checkAuthEdge],
-          cachePolicy: webOriginCachePolicy,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
         },
         additionalBehaviors: {
           "/api/*": {
@@ -258,7 +235,8 @@ export class FileShareServiceStack extends cdk.Stack {
             allowedMethods: AllowedMethods.ALLOW_ALL,
             compress: true,
             cachedMethods: CachedMethods.CACHE_GET_HEAD,
-            cachePolicy: apiOriginCachePolicy,
+            cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+            responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
           },
         },
       }
