@@ -94,9 +94,9 @@ export class CognitoUserPool extends Construct {
         supportedIdentityProviders: [
           UserPoolClientIdentityProvider.COGNITO
         ],
-        accessTokenValidity: Duration.days(1),
-        idTokenValidity: Duration.days(1),
-        refreshTokenValidity: Duration.days(30),
+        accessTokenValidity: Duration.hours(1),
+        idTokenValidity: Duration.hours(1),
+        refreshTokenValidity: Duration.hours(8),
         preventUserExistenceErrors: true,
       }
     );

@@ -10,13 +10,14 @@ import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-al
 import { CorsHttpMethod, HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { CognitoUserPool } from './construct/cognito';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
-import { Duration } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, PublicHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import * as serverless from 'aws-cdk-lib/aws-sam';
 import { Version } from 'aws-cdk-lib/aws-lambda';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 
 enum HttpStatus {
   OK = 200,
@@ -138,12 +139,6 @@ export class FileShareServiceStack extends cdk.Stack {
     });
     fileShareServiceWebSiteBucket.grantRead(this.cloudfrontOAI);
 
-    const errorResponse403: ErrorResponse = {
-      httpStatus: HttpStatus.Unauthorized,
-      responseHttpStatus: HttpStatus.OK,
-      responsePagePath: "/index.html",
-      ttl: Duration.seconds(0),
-    };
     const errorResponse404: ErrorResponse = {
       httpStatus: HttpStatus.NotFound,
       responseHttpStatus: HttpStatus.OK,
@@ -151,18 +146,67 @@ export class FileShareServiceStack extends cdk.Stack {
       ttl: Duration.seconds(0),
     };
 
+    const apiOriginCachePolicy = new CachePolicy(this, "apiOriginCachePolicy", {
+      cachePolicyName: props.appPrefix + '-api-origin-cache-policy',
+      comment: "api origin cache policy in distritbution",
+      defaultTtl: Duration.seconds(0),
+      minTtl: Duration.seconds(0),
+      maxTtl: Duration.seconds(1),
+      enableAcceptEncodingBrotli: true,
+      enableAcceptEncodingGzip: true,
+      cookieBehavior: CacheCookieBehavior.all(),
+      queryStringBehavior: CacheQueryStringBehavior.all(),
+    });
+
+    // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/example-function-add-security-headers.html
+    // https://dev.to/kumo/deliver-perfect-http-security-headers-with-aws-cloudfront-4din
+    const httpHeaders = JSON.stringify({
+      "Content-Security-Policy":
+        "default-src 'none'; img-src 'self'; script-src 'self' https://code.jquery.com https://stackpath.bootstrapcdn.com; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com; object-src 'none'; connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com",
+      "Strict-Transport-Security":
+        "max-age=31536000; includeSubdomains; preload",
+      "Referrer-Policy": "same-origin",
+      "X-XSS-Protection": "1; mode=block",
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+    });
+
+    const distributionLoggingPrefix = "distribution-access-logs/";
+    const distributionLoggingBucket = new Bucket(
+      this,
+      "distributionLoggingBucket",
+      {
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        removalPolicy: RemovalPolicy.DESTROY,
+        autoDeleteObjects: true,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        publicReadAccess: false,
+        lifecycleRules: [
+          {
+            prefix: distributionLoggingPrefix,
+            abortIncompleteMultipartUploadAfter: Duration.days(90),
+            expiration: Duration.days(90),
+          },
+        ],
+      }
+    );
+
     const dummyorigin = new HttpOrigin('will-never-be-reached.org', {
       protocolPolicy: OriginProtocolPolicy.MATCH_VIEWER,
       originSslProtocols: [OriginSslPolicy.SSL_V3]
     });
 
-    const httpHeaders = JSON.stringify({"Content-Security-Policy": "default-src 'none'; img-src 'self'; script-src 'self' https://code.jquery.com https://stackpath.bootstrapcdn.com; style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com; object-src 'none'; connect-src 'self' https://*.amazonaws.com https://*.amazoncognito.com",  "Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",  "Referrer-Policy": "same-origin",  "X-XSS-Protection": "1; mode=block",  "X-Frame-Options": "DENY",  "X-Content-Type-Options": "nosniff"})
+    const cookieSettings = JSON.stringify({
+      accessToken: "Path=/; Secure; HttpOnly; Max-Age=3600; SameSite=Lax",
+      idToken: "Path=/; Secure; HttpOnly; Max-Age=Session; SameSite=Lax",
+      refreshToken: "Path=/refreshauth; Secure; HttpOnly; Max-Age=Session; SameSite=Lax",
+    });
 
     const authAtEdge = new serverless.CfnApplication(this, "AuthorizationAtEdge", {
       location: {
         applicationId:
           "arn:aws:serverlessrepo:us-east-1:520945424137:applications/cloudfront-authorization-at-edge",
-        semanticVersion: "2.1.5",
+        semanticVersion: "2.1.6",
       },
       parameters: {
         CookieCompatibility: "amplify",
@@ -182,6 +226,10 @@ export class FileShareServiceStack extends cdk.Stack {
         UserPoolClientSecret: this.cognito.userPoolClient.userPoolClientSecret.unsafeUnwrap(),
         RedirectPathAuthRefresh: "/refreshauth",
         S3OriginDomainName: this.s3OriginDomainName,
+        AlternateDomainNames: props.fileshareServiceDomainName,
+        CloudFrontAccessLogsBucket: `${distributionLoggingBucket.bucketName}.s3.${this.region}.amazonaws.com`,
+        DefaultRootObject: "index.html",
+        CookieSettings: cookieSettings,
       },
     });
 
@@ -216,7 +264,10 @@ export class FileShareServiceStack extends cdk.Stack {
         certificate: props.certificate,
         domainNames: [ props.fileshareServiceDomainName ],
         defaultRootObject: "index.html",
-        errorResponses: [errorResponse403, errorResponse404],
+        errorResponses: [errorResponse404],
+        logBucket: distributionLoggingBucket,
+        logFilePrefix: distributionLoggingPrefix,
+        logIncludesCookies: true,
         defaultBehavior: {
           origin: new S3Origin(fileShareServiceWebSiteBucket, {
             originAccessIdentity: this.cloudfrontOAI,
@@ -227,18 +278,7 @@ export class FileShareServiceStack extends cdk.Stack {
           edgeLambdas: [checkAuthEdge],
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
-        },
-        additionalBehaviors: {
-          "/api/*": {
-            origin: new HttpOrigin(`${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`),
-            viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-            allowedMethods: AllowedMethods.ALLOW_ALL,
-            compress: true,
-            cachedMethods: CachedMethods.CACHE_GET_HEAD,
-            cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-            responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
-          },
-        },
+        }
       }
     );
 
@@ -250,16 +290,30 @@ export class FileShareServiceStack extends cdk.Stack {
       ),
     });
 
+    // api path
+    distribution.addBehavior("/api/*", new HttpOrigin(`${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`), {
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      allowedMethods: AllowedMethods.ALLOW_ALL,
+      compress: true,
+      edgeLambdas: [checkAuthEdge],
+      cachePolicy: apiOriginCachePolicy,
+      responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
+    });
+
     distribution.addBehavior("/signin", dummyorigin, {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: CachePolicy.CACHING_DISABLED,
       edgeLambdas: [parseAuthEdge]
     });
     distribution.addBehavior("/signout", dummyorigin, {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: CachePolicy.CACHING_DISABLED,
       edgeLambdas: [signOutEdge]
     });
     distribution.addBehavior("/refreshauth", dummyorigin, {
+      allowedMethods: AllowedMethods.ALLOW_ALL,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      cachePolicy: CachePolicy.CACHING_DISABLED,
       edgeLambdas: [refreshAuthEdge]
     });
 
