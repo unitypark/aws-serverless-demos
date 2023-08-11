@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
-import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, CachedMethods, Distribution, EdgeLambda, ErrorResponse, LambdaEdgeEventType, OriginAccessIdentity, OriginProtocolPolicy, OriginSslPolicy, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { AllowedMethods, CacheCookieBehavior, CachePolicy, CacheQueryStringBehavior, Function, Distribution, EdgeLambda, ErrorResponse, FunctionCode, FunctionEventType, LambdaEdgeEventType, OriginAccessIdentity, OriginProtocolPolicy, OriginRequestPolicy, OriginSslPolicy, ResponseHeadersPolicy, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import path = require('path');
 import { GoLambdaFunction } from './construct/goLambdaFunction';
@@ -197,23 +197,24 @@ export class FileShareServiceStack extends cdk.Stack {
     });
 
     const cookieSettings = JSON.stringify({
-      accessToken: "Path=/; Secure; HttpOnly; Max-Age=3600; SameSite=Lax",
-      idToken: "Path=/; Secure; HttpOnly; Max-Age=Session; SameSite=Lax",
-      refreshToken: "Path=/refreshauth; Secure; HttpOnly; Max-Age=Session; SameSite=Lax",
+      accessToken: `Path=/api; Secure; HttpOnly; Max-Age=3000; Domain=${props.fileshareServiceDomainName}; SameSite=Lax`,
+      idToken: `Path=/; Secure; HttpOnly; Max-Age=3000; Domain=${props.fileshareServiceDomainName}; SameSite=Lax`,
+      refreshToken: `Path=/refreshauth; Secure; HttpOnly; Max-Age=28800; Domain=${props.fileshareServiceDomainName}; SameSite=Lax`,
+      cognitoEnabled: `Path=/tmp; Secure; Domain=${props.fileshareServiceDomainName}; SameSite=Lax`,
     });
 
     const authAtEdge = new serverless.CfnApplication(this, "AuthorizationAtEdge", {
       location: {
         applicationId:
           "arn:aws:serverlessrepo:us-east-1:520945424137:applications/cloudfront-authorization-at-edge",
-        semanticVersion: "2.1.6",
+        semanticVersion: "2.1.7",
       },
       parameters: {
-        CookieCompatibility: "amplify",
+        CookieCompatibility: "elasticsearch",
         CreateCloudFrontDistribution: "false",
         EnableSPAMode: "false",
         HttpHeaders: httpHeaders,
-        LogLevel: "debug",
+        LogLevel: "none",
         OAuthScopes: "email, profile, openid",
         OriginAccessIdentity: this.cloudfrontOAI.originAccessIdentityId,
         RedirectPathSignIn: "/signin",
@@ -233,12 +234,30 @@ export class FileShareServiceStack extends cdk.Stack {
       },
     });
 
+    console.log("PATH: ", path.resolve(__dirname))
+
+    // log for cloudfront function can be accessed in cloudwatch in us-east-1 region
+    // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions-logs.html
+    // CloudFront Function is deployed with the CloudFront distribution in the region of your choice. (eu-west-1)
+    const checkAuthFunction = new Function(this, "ViewerRequestAuthFunction", {
+      comment: "function to handle expired jwt token session",
+      code: FunctionCode.fromFile({
+        filePath: `${path.resolve(__dirname)}/../../../../../cloudfront/auth.js`,
+      }),
+    });
+
     /**
      * Edge@Lambda
      */
-    const checkAuthEdge: EdgeLambda = {
+    // This is the edge lambda for the api endpoint to handle refreshing jwt tokens, if it's expired
+    const checkOriginAuthEdge: EdgeLambda = {
+      eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
+      functionVersion: Version.fromVersionArn(this, "CheckOriginAuthHandler", authAtEdge.getAtt("Outputs.CheckAuthHandler").toString())
+    };
+    // This is the edge lambda for the web app (default) endpoint to handle jwt tokens, if it's expired or does not exist for sign-in
+    const checkViewerAuthEdge: EdgeLambda = {
       eventType: LambdaEdgeEventType.VIEWER_REQUEST,
-      functionVersion: Version.fromVersionArn(this, "CheckAuthHandler", authAtEdge.getAtt("Outputs.CheckAuthHandler").toString())
+      functionVersion: Version.fromVersionArn(this, "CheckViewerAuthHandler", authAtEdge.getAtt("Outputs.CheckAuthHandler").toString())
     };
     const parseAuthEdge: EdgeLambda = {
       eventType: LambdaEdgeEventType.VIEWER_REQUEST,
@@ -275,7 +294,7 @@ export class FileShareServiceStack extends cdk.Stack {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           compress: true,
-          edgeLambdas: [checkAuthEdge],
+          edgeLambdas: [checkViewerAuthEdge],
           cachePolicy: CachePolicy.CACHING_OPTIMIZED,
           responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
         }
@@ -295,26 +314,37 @@ export class FileShareServiceStack extends cdk.Stack {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       allowedMethods: AllowedMethods.ALLOW_ALL,
       compress: true,
-      edgeLambdas: [checkAuthEdge],
+      functionAssociations: [
+        {
+          function: checkAuthFunction,
+          eventType: FunctionEventType.VIEWER_REQUEST,
+        },
+      ],
+      edgeLambdas: [checkOriginAuthEdge],
       cachePolicy: apiOriginCachePolicy,
+      // https://stackoverflow.com/questions/71367982/cloudfront-gives-403-when-origin-request-policy-include-all-headers-querystri
+      originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
       responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
     });
 
     distribution.addBehavior("/signin", dummyorigin, {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: CachePolicy.CACHING_DISABLED,
-      edgeLambdas: [parseAuthEdge]
+      edgeLambdas: [parseAuthEdge],
+      responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
     });
     distribution.addBehavior("/signout", dummyorigin, {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: CachePolicy.CACHING_DISABLED,
-      edgeLambdas: [signOutEdge]
+      edgeLambdas: [signOutEdge],
+      responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
     });
     distribution.addBehavior("/refreshauth", dummyorigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       cachePolicy: CachePolicy.CACHING_DISABLED,
-      edgeLambdas: [refreshAuthEdge]
+      edgeLambdas: [refreshAuthEdge],
+      responseHeadersPolicy: ResponseHeadersPolicy.SECURITY_HEADERS,
     });
 
     new BucketDeployment(this, props.appPrefix + '-deploy-fileshare-service-website-asset', {
