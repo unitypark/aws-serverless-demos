@@ -20,7 +20,6 @@ interface Props extends cdk.StackProps {
 export class LandingZoneStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
-
     /**
      * S3 Website bucket 
      */

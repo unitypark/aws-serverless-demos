@@ -11,7 +11,6 @@ const MiddleBlock = lazy(() => import("../../components/MiddleBlock"));
 const Container = lazy(() => import("../../common/Container"));
 const ScrollToTop = lazy(() => import("../../common/ScrollToTop"));
 const ContentBlock = lazy(() => import("../../components/ContentBlock"));
-
 const Home = () => {
   return (
     <Container>
@@ -21,7 +20,7 @@ const Home = () => {
         title={IntroContent.title}
         content={IntroContent.text}
         button={IntroContent.button}
-        icon="teams.jpg"
+        icon="rocket.gif"
         id="ctse"
       />
       <MiddleBlock
