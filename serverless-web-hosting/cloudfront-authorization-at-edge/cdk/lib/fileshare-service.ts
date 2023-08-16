@@ -199,9 +199,9 @@ export class FileShareService extends cdk.Stack {
     });
 
     const cookieSettings = JSON.stringify({
-      accessToken: `Path=/api; Secure; HttpOnly; Max-Age=${ACCESS_TOKEN_VALIDITY}; Domain=${props.domain}; SameSite=Lax`,
-      idToken: `Path=/; Secure; HttpOnly; Max-Age=${REFRESH_TOKEN_VALIDITY}; Domain=${props.domain}; SameSite=Lax`,
-      refreshToken: `Path=/refreshauth; Secure; HttpOnly; Max-Age=${REFRESH_TOKEN_VALIDITY}; Domain=${props.domain}; SameSite=Lax`,
+      accessToken: `Path=/api; Secure; HttpOnly; Max-Age=300; Domain=${props.domain}; SameSite=Lax`,
+      idToken: `Path=/; Secure; HttpOnly; Max-Age=3600; Domain=${props.domain}; SameSite=Lax`,
+      refreshToken: `Path=/refreshauth; Secure; HttpOnly; Max-Age=3600; Domain=${props.domain}; SameSite=Lax`,
       cognitoEnabled: `Path=/tmp; Secure; Domain=${props.domain}; SameSite=Lax`,
     });
 
