@@ -18,7 +18,6 @@ use (
 	./serverless-web-hosting/secure-cloudfront-http-api-cognito/customresource
 	./serverless-web-hosting/serverless-file-share/lambda/api
 	./serverless-web-hosting/serverless-file-share/lambda/cognitotrigger
-	./serverless-web-hosting/oatuh2-cognito-best-practice/lambda/api
-	./serverless-web-hosting/oatuh2-cognito-best-practice/lambda/cognitotrigger
+	./serverless-web-hosting/cloudfront-authorization-at-edge/api
 	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-consumer-api
 )
