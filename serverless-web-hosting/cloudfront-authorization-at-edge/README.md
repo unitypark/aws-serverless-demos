@@ -9,8 +9,6 @@ In **AWS 🌩️ FileShare** project is the extended version of previous project
 
 🌩️ HTTP API Gateway
 
-🌩️ S3 Bucket for Landing Zone Website
-
 🌩️ S3 Bucket for FileShare Service Website
 
 🌩️ S3 Bucket for Shared Files
