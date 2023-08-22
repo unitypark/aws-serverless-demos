@@ -9,7 +9,7 @@
       "cdk*.json",
       "**/*.d.ts",
       "**/*.js",
-      "tsconfig.json",
+      "tsconfig.json",  
       "package*.json",
       "yarn.lock",
       "node_modules",
@@ -28,6 +28,7 @@
       "aws",
       "aws-cn"
     ],
+    "@aws-cdk/core:newStyleStackSynthesis": true,
     "@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver": true,
     "@aws-cdk/aws-ec2:uniqueImdsv2TemplateName": true,
     "@aws-cdk/aws-ecs:arnFormatIncludesClusterName": true,

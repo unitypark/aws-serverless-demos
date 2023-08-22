@@ -1,0 +1,46 @@
+<!-- Based on https://docs.aws.amazon.com/opensearch-service/latest/developerguide/search-example.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="main.css">
+  <title>Product Search</title>
+</head>
+<body>
+  <h1>Product Search</h1>
+  <input id="search" autocomplete="off" placeholder="Search">
+  <div id="results"></div>
+  <script>
+    // Update this to point to your domain
+    var endpoint = 'https://TODO.execute-api.REGION.amazonaws.com/prod/search';
+
+    function showResults(val) {
+      results = document.getElementById('results');
+      results.innerHTML = '';
+      if (val == '') {
+        return;
+      }
+      fetch(endpoint + '?query=' + val).then(
+        function (response) {
+          return response.json();
+        }).then(function (data) {
+          results.innerHTML = '';
+          let hits = data.hits;
+          for (var item in hits) {
+            let title = hits[item]._source.title;
+            let description = hits[item]._source.description;
+            let price = Number(hits[item]._source.price) / 100;
+
+            results.innerHTML += `<div class="result"><div><h2>${title}</a></h2><p>${description}</p><p>${price}</p></div></div>`;
+          }
+        return true;
+      });
+    };
+
+    document.addEventListener('keyup', function(e) {
+      showResults(e.target.value);
+    });
+  </script>
+</body>
+</html>

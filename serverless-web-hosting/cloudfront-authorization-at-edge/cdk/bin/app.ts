@@ -7,8 +7,6 @@ import { DistributionCertificate } from '../lib/certificate';
 const app = new cdk.App();
 const appContext = app.node.tryGetContext('app');
 
-
-
 const distributionCertificationStack = new DistributionCertificate(app, appContext.name + '-certificate-stack', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,

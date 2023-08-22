@@ -1,0 +1,18 @@
+body {
+  margin: 1rem;
+  font-family: sans-serif;
+}
+
+h1, h2, input, p {
+  font-weight: 400;
+  margin: 1.1rem 0;
+}
+
+input {
+  padding: .5rem;
+  margin-bottom: 1rem;
+}
+
+.result {
+  display: flex;
+}
