@@ -1,13 +1,7 @@
 import { Construct } from 'constructs';
-import { AccountRecovery, BooleanAttribute, CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
+import { AccountRecovery, BooleanAttribute, CfnIdentityPool, CfnIdentityPoolRoleAttachment, CfnUserPoolGroup, OAuthScope, ResourceServerScope, UserPool, UserPoolClient, UserPoolClientIdentityProvider, UserPoolResourceServer, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
-import { Effect, FederatedPrincipal, ManagedPolicy, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
-
-export interface TokenValidityConfig {
-  idToken: Duration
-  accessToken: Duration
-  refreshToken: Duration
-}
+import { Effect, FederatedPrincipal, ManagedPolicy, PolicyDocument, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
 
 export interface CognitoUserPoolProps {
     region: string;
@@ -55,7 +49,7 @@ export class CognitoConstruct extends Construct {
           domainPrefix: `${props.appPrefix}-${props.suffix}`,
         },
     });
-
+    
     // the identity pool grants the client temporary creds using the role. This lets them retrieve objects from S3
     this.identityPool = new CfnIdentityPool(this, "CfnIdentityPool", {
         identityPoolName: `${props.appPrefix}-identity-pool`,
@@ -63,34 +57,45 @@ export class CognitoConstruct extends Construct {
       }
     );
 
-    this.osAdminUserRole = new Role(this, 'osAdminUserRole', {
-      assumedBy: new FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: { 'cognito-identity.amazonaws.com:aud': this.identityPool.ref },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
-          },
+    const osHttpPolicy = new PolicyDocument({
+      statements: [
+        new PolicyStatement({
+          resources: ["*"],
+          actions: ["es:ESHttp*"],
+        }),
+      ],
+    });
+
+    this.osAdminUserRole = new Role(this, "AuthRole",
+      {
+        roleName: `${props.appPrefix}-cognito-auth-role`,
+        inlinePolicies: {
+          OpenSearchHttpPolicy: osHttpPolicy,
         },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
+        assumedBy: new FederatedPrincipal(
+          "cognito-identity.amazonaws.com",
+          {
+            StringEquals: {
+              "cognito-identity.amazonaws.com:aud": this.identityPool.ref,
+            },
+            "ForAnyValue:StringLike": {
+              "cognito-identity.amazonaws.com:amr": "authenticated",
+            },
+          },
+          "sts:AssumeRoleWithWebIdentity"
+        ),
+      }
+    );
+
+    new CfnIdentityPoolRoleAttachment(this, "PoolRoleMapping", {
+      identityPoolId: this.identityPool.ref,
+      roles: { authenticated: this.osAdminUserRole.roleArn },
     });
 
     new CfnUserPoolGroup(this, "UserPoolAdminGroupPool", {
       userPoolId: this.userPool.userPoolId,
       groupName: "os-admins",
       roleArn: this.osAdminUserRole.roleArn
-    });
-
-    new ManagedPolicy(this, 'LimitedUserPolicy', {
-      roles: [this.osAdminUserRole],
-      statements: [
-          new PolicyStatement({
-              effect: Effect.ALLOW,
-              actions: ['es:ESHttp*'],
-              resources: ["*"]
-          })
-      ]
     });
   }
 

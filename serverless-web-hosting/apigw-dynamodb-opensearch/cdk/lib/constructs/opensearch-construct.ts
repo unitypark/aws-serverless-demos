@@ -1,9 +1,8 @@
 import { Construct } from 'constructs';
 import { Domain, EngineVersion, TLSSecurityPolicy } from 'aws-cdk-lib/aws-opensearchservice';
-import { AnyPrincipal, ManagedPolicy, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { AnyPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { EbsDeviceVolumeType, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { RemovalPolicy } from 'aws-cdk-lib';
-import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 
 export interface OpenSearchProps {
@@ -15,21 +14,11 @@ export interface OpenSearchProps {
   serviceHostedZone: IHostedZone;
   vpc: Vpc;
   opensearchSecurityGroup: SecurityGroup;
-  userPoolId: string;
-  identityPoolId: string;
-  osAdminUserRoleArn: string;
 }
 
 export default class OpenSearchConstruct extends Construct {
   constructor(scope: Construct, id: string, props: OpenSearchProps) {
     super(scope, id);
-
-    // OpenSearch service needs access to Cognito to create and configure an app client in the user pool and identity in the identity pool.
-    const cognitoOpensearchRole = new Role(this, 'LinkedRoleCognitoAccessForAmazonOpenSearch', {
-      roleName: 'LinkedRoleCognitoAccessForAmazonOpenSearch',
-      assumedBy: new ServicePrincipal('opensearchservice.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonOpenSearchServiceCognitoAccess')],
-    });
 
     this.osDomain = new Domain(this, 'OsDomain', {
       domainName: props.osDomainName,
@@ -48,15 +37,16 @@ export default class OpenSearchConstruct extends Construct {
         availabilityZoneCount: 3,
       },
       tlsSecurityPolicy: TLSSecurityPolicy.TLS_1_2,
-/*       cognitoDashboardsAuth: {
-        identityPoolId: props.identityPoolId,
-        role: cognitoOpensearchRole,
-        userPoolId: props.userPoolId,
-      }, */
+      fineGrainedAccessControl: {
+        masterUserName: 'admin',
+      },
       accessPolicies: [
         new PolicyStatement({
-          actions: ["es:ESHttp*"], //Subset of actions?
-          resources: [`arn:aws:es:${props.region}:${props.account}:domain/${props.osDomainName}/*`],
+          actions: ["es:ESHttp*"],
+          resources: [
+            `arn:aws:es:${props.region}:${props.account}:domain/${props.osDomainName}/*`,
+            props.dashboardDomain + "/*",
+          ],
           principals: [new AnyPrincipal()]
         }),
       ],
@@ -77,17 +67,6 @@ export default class OpenSearchConstruct extends Construct {
       enableVersionUpgrade: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });
-
-    this.osDomain.addAccessPolicies(
-      new PolicyStatement({
-        principals: [new AnyPrincipal()],
-        actions: ["es:ESHttp*"],
-        resources: [
-          this.osDomain.domainArn + "/*",
-          props.dashboardDomain + "/*",
-        ],
-      })
-    );
   }
 
   public readonly osDomain: Domain
