@@ -1,26 +1,23 @@
 import { Construct } from 'constructs';
-import DomainConstruct from './constructs/domain-construct';
 import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import OpenSearchConstruct from './constructs/opensearch-construct';
 import NetworkConstruct from './constructs/network-construct';
 import BastionConstruct from './constructs/bastion-construct';
+import LambdaConstruct from './constructs/lambda-construct';
+import { Port } from 'aws-cdk-lib/aws-ec2';
+import RestApiConstruct from './constructs/rest-api-construct';
+import { LambdaIntegration } from 'aws-cdk-lib/aws-apigateway';
 
 interface Props extends StackProps {
   prefix: string
-  baseDomain: string
-  subDomain: string
 }
 
 export class OpenSearchStack extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const osDomainName = `${props.prefix}`;
-
-    const domain = new DomainConstruct(this, "DomainConstruct", {
-      baseDomain: props.baseDomain,
-      subDomain: props.subDomain,
-    });
+    const API_LAMBDA_PREFIX = '../api/cmd'
+    const LAMBDA_POST_SEARCH_LOCATION = `${API_LAMBDA_PREFIX}/postSearch/main.go`
 
     const network = new NetworkConstruct(this, "NetworkConstruct", {
       appPrefix: props.prefix,
@@ -32,24 +29,35 @@ export class OpenSearchStack extends Stack {
       bastionSecurityGroup: network.bastionSecurityGroup,
     });
 
-    const dashboradDomain = `dashboard.${domain.serviceDomain}`
     const opensearch = new OpenSearchConstruct(this, "OpenSearchConstruct", {
       region: this.region,
       account: this.account,
       appPrefix: props.prefix,
-      osDomainName: osDomainName,
-      dashboardDomain: dashboradDomain,
-      serviceHostedZone: domain.serviceHostedZone,
       vpc: network.vpc,
       opensearchSecurityGroup: network.opensearchSecurityGroup,
     });
 
-    new CfnOutput(this, 'OpenSearchDashboardCustomDomain', {
-      value: `https://${dashboradDomain}`
+    const postSearchLambda = new LambdaConstruct(this, "PostSearchLambda", {
+      name: props.prefix + '-api-post-search',
+      entry: LAMBDA_POST_SEARCH_LOCATION,
+      vpc: network.vpc,
+      environmentVariables: {
+        OPENSEARCH_HOST: opensearch.osDomain.domainEndpoint,
+      }
+    });
+    opensearch.osDomain.connections.allowFrom(postSearchLambda.fn, Port.tcp(443));
+
+    new RestApiConstruct(this, "RestApiConstruct", {
+      appPrefix: props.prefix,
+      searchFn: postSearchLambda.fn
+    })
+
+    new CfnOutput(this, 'OpenSearchDashboardDomainEndpoint', {
+      value: `${opensearch.osDomain.domainEndpoint}`
     });
 
-    new CfnOutput(this, 'OpenSearchMasterUserPassword', {
-      value: opensearch.osDomain.masterUserPassword ? opensearch.osDomain.masterUserPassword.unsafeUnwrap() : "undefined"
+    new CfnOutput(this, "PostSearchHandlerFunctionName", {
+      value: postSearchLambda.fn.functionName,
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { Port, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IpAddresses, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface OpenSearchProps {
   appPrefix: string;
@@ -11,7 +11,16 @@ export default class NetworkConstruct extends Construct {
 
     // VPC
     this.vpc = new Vpc(this, "OpensearchVpc", {
-      vpcName: `${props.appPrefix}-vpc`,  
+      vpcName: `${props.appPrefix}-vpc`,
+      natGateways: 0,  
+      ipAddresses: IpAddresses.cidr('10.0.0.0/18'),
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          name: `${props.appPrefix}-isolated-subnet`,
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+        },
+      ],
     });
 
     // Security Group
@@ -21,7 +30,7 @@ export default class NetworkConstruct extends Construct {
       {
         vpc: this.vpc,
         allowAllOutbound: true,
-        securityGroupName: `${props.appPrefix}-os-bastion-sg`,
+        securityGroupName: `${props.appPrefix}-bastion-sg`,
       }
     );
 
@@ -31,7 +40,7 @@ export default class NetworkConstruct extends Construct {
       "OpensearchSecurityGroup",
       {
         vpc: this.vpc,
-        securityGroupName: `${props.appPrefix}-os-sg`,
+        securityGroupName: `${props.appPrefix}-sg`,
       }
     );
     this.opensearchSecurityGroup.addIngressRule(this.bastionSecurityGroup, Port.tcp(443));

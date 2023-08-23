@@ -17,7 +17,6 @@ export default class BastionConstruct extends Construct {
       vpc: props.vpc,
       securityGroup: props.bastionSecurityGroup,
       machineImage: MachineImage.latestAmazonLinux2023(),
-      
       blockDevices: [
         {
           deviceName: "/dev/xvda",

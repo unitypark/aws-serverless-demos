@@ -18,7 +18,7 @@
   },
   "context": {
     "app": {
-      "name": "opensearch-demo",
+      "name": "opensearch",
       "subdomain": "cognito-opensearch",
       "baseDoamin": "awsserverless.run"
     },
