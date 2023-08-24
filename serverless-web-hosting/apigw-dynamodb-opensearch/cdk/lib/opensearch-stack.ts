@@ -6,7 +6,6 @@ import BastionConstruct from './constructs/bastion-construct';
 import LambdaConstruct from './constructs/lambda-construct';
 import { Port } from 'aws-cdk-lib/aws-ec2';
 import RestApiConstruct from './constructs/rest-api-construct';
-import { LambdaIntegration } from 'aws-cdk-lib/aws-apigateway';
 
 interface Props extends StackProps {
   prefix: string
@@ -46,18 +45,15 @@ export class OpenSearchStack extends Stack {
       }
     });
     opensearch.osDomain.connections.allowFrom(postSearchLambda.fn, Port.tcp(443));
+    opensearch.osDomain.masterUserPassword
 
     new RestApiConstruct(this, "RestApiConstruct", {
       appPrefix: props.prefix,
       searchFn: postSearchLambda.fn
-    })
+    });
 
     new CfnOutput(this, 'OpenSearchDashboardDomainEndpoint', {
       value: `${opensearch.osDomain.domainEndpoint}`
-    });
-
-    new CfnOutput(this, "PostSearchHandlerFunctionName", {
-      value: postSearchLambda.fn.functionName,
     });
   }
 }
