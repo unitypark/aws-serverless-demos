@@ -1,0 +1,110 @@
+body {
+  background: #f7f7f7;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  width: auto;
+  display: grid;
+  gap: 1em;
+  margin: 3em;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1em;
+}
+
+button {
+  background: #17f;
+  color: #fff;
+  font: inherit;
+  border: none;
+  border-radius: 3px;
+  outline: none;
+  padding: 0.5em 1.5em;
+  margin-left: 10px;
+}
+
+button:active {
+  background-color: #05b;
+}
+
+input {
+  border: 1px solid #999;
+  border-radius: 3px;
+  font: inherit;
+  padding: 0.5em;
+  outline: none;
+  width: 100%;
+}
+
+input:focus {
+  outline: auto #17f;
+}
+
+.info {
+  font-size: 90%;
+  font-weight: bold;
+  color: #777;
+  display: inline-block;
+  margin-bottom: 1em;
+}
+
+.item {
+  padding: 1em;
+  list-style-type: none;
+  border-radius: 6px;
+  margin-bottom: 1em;
+  background: #fff;
+  box-shadow: 0px 2px 6px 2px #0002;
+  width: 70%;
+}
+
+.item .title {
+  font-size: 140%;
+}
+
+.item .description {
+  margin: 1em 0;
+  font-size: 110%;
+}
+
+.item .comment {
+  font-size: 90%;
+  font-weight: bold;
+  font-style: italic;
+  color: #444;
+  background-color: lightyellow; 
+}
+
+.item .thumbnail {
+  float: right;
+  box-shadow: 0px 1px 1px 1px #0002;
+  border-radius: 12px;
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+.item .meta {
+  margin: 2em 0 0 0;
+  font-size: 80%;
+  font-weight: bold;
+  color: orangered;
+}
+
+.item .provider-thumbnail {
+  margin-top: 1em;
+  margin-right: 0.5em;
+  width: 128x;
+  height: 128px;
+}
+
+.item .meta > *:not(:last-child) {
+  margin-right: 0.8em;
+}

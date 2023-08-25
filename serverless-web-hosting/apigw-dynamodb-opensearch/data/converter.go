@@ -67,11 +67,19 @@ func main() {
 	}
 	defer convertedFile.Close()
 
+	// total 6187 posts
+	log.Println("documents amount: ", len(redditPosts.Documents))
+
 	for i, document := range redditPosts.Documents {
 		// {"Message":"Request size exceeded 10485760 bytes"}, if I try to bulk upload whole json dataset
-		if i == 100 {
+		// part 1
+		if i == 3000 {
 			break
 		}
+		// part 2
+		/* if i < 3000 {
+			continue
+		} */
 		documentBytes, _ := json.Marshal(document)
 		// write bulk header metadata
 		convertedFile.Write(opensearchBulkHeaderBytes)
