@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/oklog/ulid"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/types"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/types"
 )
 
 type Asset struct {

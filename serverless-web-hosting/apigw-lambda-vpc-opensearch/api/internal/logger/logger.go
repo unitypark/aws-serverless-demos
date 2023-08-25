@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	appConfig "github.com/unitypark/apigw-dynamodb-opensearch/api/internal/config"
+	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
 )
 
 // It initialize a default global zap logger in service

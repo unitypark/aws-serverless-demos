@@ -1,4 +1,4 @@
-module github.com/unitypark/apigw-dynamodb-opensearch/api
+module github.com/unitypark/apigw-lambda-vpc-opensearch/api
 
 go 1.20
 

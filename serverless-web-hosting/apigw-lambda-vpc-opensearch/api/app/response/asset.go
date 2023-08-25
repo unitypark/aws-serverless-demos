@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/entities"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/entities"
 
 	"github.com/gofiber/fiber/v2"
 )

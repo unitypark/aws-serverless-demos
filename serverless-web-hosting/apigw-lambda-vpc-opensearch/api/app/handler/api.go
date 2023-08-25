@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
-	appResponse "github.com/unitypark/apigw-dynamodb-opensearch/api/app/response"
+	appResponse "github.com/unitypark/apigw-lambda-vpc-opensearch/api/app/response"
 
 	"go.uber.org/zap"
 )

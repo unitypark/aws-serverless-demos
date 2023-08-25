@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	appConfig "github.com/unitypark/apigw-dynamodb-opensearch/api/internal/config"
+	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
 	"go.uber.org/zap"
 
 	goConfig "github.com/aws/aws-sdk-go-v2/config"

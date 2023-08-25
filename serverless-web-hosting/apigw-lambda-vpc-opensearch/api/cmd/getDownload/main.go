@@ -6,17 +6,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/app/handler"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/app/router"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/client"
-	appConfig "github.com/unitypark/apigw-dynamodb-opensearch/api/internal/config"
-	zapLogger "github.com/unitypark/apigw-dynamodb-opensearch/api/internal/logger"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/repository"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/service"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/app/handler"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/app/router"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/client"
+	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
+	zapLogger "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/logger"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/repository"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/service"
 	"go.uber.org/zap"
 )
 
-const serviceName string = "PostDownloads"
+const serviceName string = "GetDwonloadUrl"
 
 var (
 	config        *appConfig.Config
@@ -44,7 +44,7 @@ func main() {
 		repo              = repository.NewRepository(dynamodbClient)
 		fileShareService  = service.NewFileShareService(config, repo)
 	)
-	fiberApp.Post("/api/downloads", router.PostDownloadUrl(fileShareService))
+	fiberApp.Get("/api/downloads/:key", router.GetDownloadUrl(fileShareService))
 
 	if config.Env == appConfig.Local {
 		zap.L().Debug("start local server on port 8080", zap.Error(fiberApp.Listen(":8080")))

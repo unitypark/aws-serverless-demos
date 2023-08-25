@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/app/response"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/service"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/app/response"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/service"
 	"go.uber.org/zap"
 
 	"github.com/gofiber/fiber/v2"

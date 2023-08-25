@@ -11,9 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/client"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/entities"
-	appTypes "github.com/unitypark/apigw-dynamodb-opensearch/api/types"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/client"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/entities"
+	appTypes "github.com/unitypark/apigw-lambda-vpc-opensearch/api/types"
 	"go.uber.org/zap"
 )
 

@@ -7,9 +7,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	appConfig "github.com/unitypark/apigw-dynamodb-opensearch/api/internal/config"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/entities"
-	"github.com/unitypark/apigw-dynamodb-opensearch/api/internal/repository"
+	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/entities"
+	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/repository"
 	"go.uber.org/zap"
 )
 
