@@ -16,11 +16,7 @@ require (
 	go.uber.org/zap v1.23.0
 )
 
-require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/lestrrat/go-pdebug v0.0.0-20180220043741-569c97477ae8 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
-)
+require github.com/pkg/errors v0.9.1 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
@@ -41,10 +37,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.13.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.19 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.15.6 // indirect
-	github.com/lestrrat/go-jwx v0.9.1
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.40.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
