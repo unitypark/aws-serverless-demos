@@ -12,7 +12,7 @@ function App() {
 
     const q = encodeURIComponent(query);
     await fetch(
-      `https://${process.env.REACT_APP_OS_DOMAIN}/_search?from=0&size=20&q=${q}`,
+      `https://${process.env.REACT_APP_OS_DOMAIN}/reddit/_search?from=0&size=20&q=${q}`,
       {
         method: 'GET',
         headers: {

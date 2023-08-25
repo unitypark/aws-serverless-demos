@@ -25,10 +25,10 @@ button {
   color: #fff;
   font: inherit;
   border: none;
-  border-radius: 3px;
+  border-radius: 20px;
   outline: none;
   padding: 0.5em 1.5em;
-  margin-left: 10px;
+  margin-left: 20px;
 }
 
 button:active {
@@ -37,9 +37,10 @@ button:active {
 
 input {
   border: 1px solid #999;
-  border-radius: 3px;
+  border-radius: 20px;
   font: inherit;
   padding: 0.5em;
+  padding-left: 1.0em;
   outline: none;
   width: 100%;
 }
@@ -63,7 +64,7 @@ input:focus {
   margin-bottom: 1em;
   background: #fff;
   box-shadow: 0px 2px 6px 2px #0002;
-  width: 70%;
+  width: 60%;
 }
 
 .item .title {
