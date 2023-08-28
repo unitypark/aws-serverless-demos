@@ -1,53 +1,35 @@
 package client
 
 import (
-	"context"
-	"errors"
-	"log"
+	"crypto/tls"
+	"net/http"
 
+	"github.com/opensearch-project/opensearch-go"
 	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
 	"go.uber.org/zap"
-
-	goConfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-type Client struct {
-	DynamoDbClient *dynamodb.Client
-	Table          *string
-}
+var openSearchClient *opensearch.Client
 
-var client *Client
+func New(config *appConfig.Config) (*opensearch.Client, error) {
+	if openSearchClient == nil {
+		zap.L().Debug("opensearch endpoint", zap.String("endpoint", config.OpenSearchEndpoint))
+		zap.L().Debug("opensearch master username", zap.String("username", config.OpenSearchMasterUsername))
+		zap.L().Debug("opensearch master user password", zap.String("password", config.OpenSearchMasterUserPassword))
+		zap.L().Info("initializing new opensearch client")
 
-// Creates a default dynamoDbClient with given Context
-func Connect(config *appConfig.Config) (*Client, error) {
-	switch config.Env {
-	case appConfig.Prod:
-		zap.L().Info("creating dynamodb client for production")
-		if client == nil {
-			client = new(Client)
-			cfg, err := goConfig.LoadDefaultConfig(context.TODO())
-			if err != nil {
-				log.Panic(err)
-			}
-			client.DynamoDbClient = dynamodb.NewFromConfig(cfg)
-			client.Table = &config.DbbTableName
+		client, err := opensearch.NewClient(opensearch.Config{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
+			Addresses: []string{config.OpenSearchEndpoint},
+			Username:  config.OpenSearchMasterUsername,
+			Password:  config.OpenSearchMasterUserPassword,
+		})
+		if err != nil {
+			return nil, err
 		}
-	case appConfig.Local:
-		zap.L().Info("creating dynamodb client for localhost:8000")
-		if client == nil {
-			client = new(Client)
-			cfg, err := goConfig.LoadDefaultConfig(context.TODO())
-			if err != nil {
-				log.Panic(err)
-			}
-			client.DynamoDbClient = dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
-				o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://localhost:8000")
-			})
-			client.Table = &config.DbbTableName
-		}
-	default:
-		return nil, errors.New("invalid environment")
+		openSearchClient = client
 	}
-	return client, nil
+	return openSearchClient, nil
 }

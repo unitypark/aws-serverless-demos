@@ -13,39 +13,25 @@ const (
 
 // List of env vars to set
 const (
-	LocalTableName                  = "FileShare"
-	LocalBucketName                 = "LocalTestBucket"
-	EnvName                         = "env"
-	ENV_URL_TABLE                   = "URL_TABLE"
-	ENV_FILE_SHARE_BUCKET           = "FILE_SHARE_BUCKET"
-	ENV_JWKS_URL                    = "JWKS_URL"
-	ENV_TOKEN_ISSUER                = "ISS"
-	ENV_COGNITO_USER_POOL_CLIENT_ID = "COGNITO_USER_POOL_CLIENT_ID"
+	EnvName                             = "env"
+	ENV_OPENSEARCH_ENDPOINT             = "OPENSEARCH_ENDPOINT"
+	ENV_OPENSEARCH_MASTER_USERNAME      = "OPENSEARCH_MASTER_USERNAME"
+	ENV_OPENSEARCH_MASTER_USER_PASSWORD = "OPENSEARCH_MASTER_USER_PASSWORD"
 )
 
 type Config struct {
-	Env                 Environment
-	DbbTableName        string
-	FileshareBucketName string
-	JwksUrl             string
-	TokenIss            string
-	ClientId            string
+	Env                          Environment
+	OpenSearchEndpoint           string
+	OpenSearchMasterUsername     string
+	OpenSearchMasterUserPassword string
 }
 
 func New() *Config {
 	cfg := new(Config)
 	cfg.setEnv()
-	cfg.DbbTableName = os.Getenv(ENV_URL_TABLE)
-	if len(cfg.DbbTableName) == 0 {
-		cfg.DbbTableName = LocalTableName
-	}
-	cfg.FileshareBucketName = os.Getenv(ENV_FILE_SHARE_BUCKET)
-	if len(cfg.FileshareBucketName) == 0 {
-		cfg.FileshareBucketName = LocalBucketName
-	}
-	cfg.JwksUrl = os.Getenv(ENV_JWKS_URL)
-	cfg.TokenIss = os.Getenv(ENV_TOKEN_ISSUER)
-	cfg.ClientId = os.Getenv(ENV_COGNITO_USER_POOL_CLIENT_ID)
+	cfg.OpenSearchEndpoint = os.Getenv(ENV_OPENSEARCH_ENDPOINT)
+	cfg.OpenSearchMasterUsername = os.Getenv(ENV_OPENSEARCH_MASTER_USERNAME)
+	cfg.OpenSearchMasterUserPassword = os.Getenv(ENV_OPENSEARCH_MASTER_USER_PASSWORD)
 	return cfg
 }
 

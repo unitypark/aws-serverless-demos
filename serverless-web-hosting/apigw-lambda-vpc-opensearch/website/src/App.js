@@ -12,21 +12,13 @@ function App() {
 
     const q = encodeURIComponent(query);
     await fetch(
-      `https://${process.env.REACT_APP_OS_DOMAIN}/reddit/_search?from=0&size=20&q=${q}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: process.env.REACT_APP_OS_AUTH,
-        },
-      }
+      `${process.env.REACT_APP_API_DOMAIN}/search/?query=${q}`
     )
-      .then((res) => {
-        return res.json();
-      })
+      .then((response) => response.json())
       .then((result) => {
-        setSearchTime(result.took);
-        setCount(result.hits.total.value);
-        setList(result.hits.hits);
+        setSearchTime(result.data.time);
+        setCount(result.data.total);
+        setList(result.data.documents);
       });
   };
 
@@ -63,20 +55,20 @@ function Item({ item }) {
   return (
     <li className="item">
       <h2 className="title">
-        <a href={item._source.url} target="_blank">
-          {item._source.title}
+        <a href={item.reddit.url} target="_blank">
+          {item.reddit.title}
         </a>
       </h2>
 
-      <p className="description">{item._source.body}</p>
+      <p className="description">{item.reddit.body}</p>
       <p className="comment">
-        <span>{item._source.comment}</span>
+        <span>{item.reddit.comment}</span>
       </p>
 
       <div className="meta">
-        <span>{item._id}</span>
-        <span>{item._score}</span>
-        <span>{item._index}</span>
+        <span>{item.id}</span>
+        <span>{item.score}</span>
+        <span>{item.index}</span>
       </div>
     </li>
   );

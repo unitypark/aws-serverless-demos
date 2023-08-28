@@ -14,7 +14,7 @@ import (
 
 type FiberLambdaHandler interface {
 	// You can define multiple lambda handlers invoked by other events like  CloudWatch, SQS etc.
-	HandleAPIGatewayV2HTTPRequest(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error)
+	HandleRestAPIGatewayProxyRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
 }
 
 type fiberLambdaHandler struct {
@@ -30,14 +30,13 @@ func NewApiHandler(serviceName string, h *fiberadapter.FiberLambda) FiberLambdaH
 }
 
 // Handler will deal with Fiber working with Lambda
-func (h *fiberLambdaHandler) HandleAPIGatewayV2HTTPRequest(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+func (h *fiberLambdaHandler) HandleRestAPIGatewayProxyRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	zap.L().Info(fmt.Sprintf("%s handler is invoked", *h.serviceName))
+	zap.L().Info("lambda api request", zap.Any("events.APIGatewayV2HTTPRequest", req))
 
-	var response events.APIGatewayV2HTTPResponse
-	zap.L().Info("attaching user context to request header")
-	req.Headers["Username"] = req.RequestContext.Authorizer.Lambda["username"].(string)
+	var response events.APIGatewayProxyResponse
 
-	response, err := h.fiberadapter.ProxyWithContextV2(ctx, req)
+	response, err := h.fiberadapter.ProxyWithContext(ctx, req)
 	if err != nil {
 		zap.L().Error("handler terminates with error", zap.Error(err))
 	}

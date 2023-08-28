@@ -1,16 +1,19 @@
 import { Construct } from 'constructs';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Port, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { GoFunction } from '@aws-cdk/aws-lambda-go-alpha';
 import { Architecture, Runtime, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
+import { Domain } from 'aws-cdk-lib/aws-opensearchservice';
 
 export interface LambdaProps {
     name: string;
     entry: string;
     vpc: Vpc;
-    environmentVariables?: { [key: string]: string };
+    masterUsername: string;
+    masterUserPassword: string;
+    osDomain: Domain;
 }
 
 export default class LambdaConstruct extends Construct {
@@ -28,7 +31,9 @@ export default class LambdaConstruct extends Construct {
         tracing: Tracing.ACTIVE,
         vpc: props.vpc,
         environment: {
-            ...props.environmentVariables,
+            OPENSEARCH_ENDPOINT: `https://${props.osDomain.domainEndpoint}`,
+            OPENSEARCH_MASTER_USERNAME: props.masterUsername,
+            OPENSEARCH_MASTER_USER_PASSWORD: props.masterUserPassword,
         },
         bundling: {
             goBuildFlags: ['-ldflags "-s -w"'],
@@ -37,6 +42,9 @@ export default class LambdaConstruct extends Construct {
     this.fn.role?.addManagedPolicy(
         ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaVPCAccessExecutionRole")
      );
+
+    // allows this lambda function to connect to opensearch over https protocol
+    props.osDomain.connections.allowFrom(this.fn, Port.tcp(443));
 
     new LogGroup(this, `${props.name}-log-group`, {
         logGroupName: `/aws/lambda/${this.fn.functionName}`,

@@ -3,9 +3,8 @@ import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import OpenSearchConstruct from './constructs/opensearch-construct';
 import NetworkConstruct from './constructs/network-construct';
 import BastionConstruct from './constructs/bastion-construct';
-import LambdaConstruct from './constructs/lambda-construct';
-import { Port } from 'aws-cdk-lib/aws-ec2';
 import RestApiConstruct from './constructs/rest-api-construct';
+import CloudfrontConstruct from './constructs/cloudfront-construct';
 
 interface Props extends StackProps {
   prefix: string
@@ -14,9 +13,6 @@ interface Props extends StackProps {
 export class OpenSearchStack extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
-
-    const API_LAMBDA_PREFIX = '../api/cmd'
-    const LAMBDA_POST_SEARCH_LOCATION = `${API_LAMBDA_PREFIX}/postSearch/main.go`
 
     const network = new NetworkConstruct(this, "NetworkConstruct", {
       appPrefix: props.prefix,
@@ -36,24 +32,37 @@ export class OpenSearchStack extends Stack {
       opensearchSecurityGroup: network.opensearchSecurityGroup,
     });
 
-    const postSearchLambda = new LambdaConstruct(this, "PostSearchLambda", {
-      name: props.prefix + '-api-post-search',
-      entry: LAMBDA_POST_SEARCH_LOCATION,
-      vpc: network.vpc,
-      environmentVariables: {
-        OPENSEARCH_HOST: opensearch.osDomain.domainEndpoint,
-      }
-    });
-    opensearch.osDomain.connections.allowFrom(postSearchLambda.fn, Port.tcp(443));
-    opensearch.osDomain.masterUserPassword
-
-    new RestApiConstruct(this, "RestApiConstruct", {
+    const apiStageName = 'dev'
+    const api = new RestApiConstruct(this, "RestApiConstruct", {
       appPrefix: props.prefix,
-      searchFn: postSearchLambda.fn
+      stageName: apiStageName,
+      vpc: network.vpc,
+      masterUsername: opensearch.masterUsername,
+      osDomain: opensearch.osDomain,
     });
+
+    const cloudfront = new CloudfrontConstruct(this, "CloudfrontConstruct", {
+      appPrefix: props.prefix
+    })
 
     new CfnOutput(this, 'OpenSearchDashboardDomainEndpoint', {
       value: `${opensearch.osDomain.domainEndpoint}`
+    });
+
+    new CfnOutput(this, 'RestApiEndpoint', {
+      value: `https://${api.api.restApiId}.execute-api.${this.region}.amazonaws.com/${apiStageName}`
+    });
+
+    new CfnOutput(this, 'WebsiteBucketName', {
+      value: `${cloudfront.webSiteBucket.bucketName}`
+    });
+
+    new CfnOutput(this, 'DistributionId', {
+      value: `${cloudfront.distribution.distributionId}`
+    });
+
+    new CfnOutput(this, 'DistributionDomain', {
+      value: `https://${cloudfront.distribution.distributionDomainName}`
     });
   }
 }

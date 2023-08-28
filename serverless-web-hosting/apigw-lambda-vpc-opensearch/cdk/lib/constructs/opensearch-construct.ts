@@ -17,7 +17,7 @@ export default class OpenSearchConstruct extends Construct {
     super(scope, id);
 
     const osDomainName = `${props.appPrefix}-domain`;
-    const masterUserName = "admin";
+    this.masterUsername = "admin";
     
     this.osDomain = new Domain(this, 'OsDomain', {
       domainName: osDomainName,
@@ -41,7 +41,7 @@ export default class OpenSearchConstruct extends Construct {
       },
       tlsSecurityPolicy: TLSSecurityPolicy.TLS_1_2,
       fineGrainedAccessControl: {
-        masterUserName: masterUserName,
+        masterUserName: this.masterUsername,
       },
       accessPolicies: [
         new PolicyStatement({
@@ -67,5 +67,6 @@ export default class OpenSearchConstruct extends Construct {
     });
   }
 
+  public readonly masterUsername: string;
   public readonly osDomain: Domain;
 }

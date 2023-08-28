@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const OS_REDDIT_INDEX string = "reddit"
+const OS_REDDIT_INDEX string = "reddit_1"
 const DATASET_FILE_NAME string = "reddit_dataset.json"
 const CONVERTED_DATASET_FILE_NAME string = "bulk.json"
 
