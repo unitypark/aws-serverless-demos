@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/opensearch-project/opensearch-go"
+	"github.com/opensearch-project/opensearch-go/v2"
 	appConfig "github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/config"
 	"go.uber.org/zap"
 )
@@ -20,7 +20,7 @@ func New(config *appConfig.Config) (*opensearch.Client, error) {
 
 		client, err := opensearch.NewClient(opensearch.Config{
 			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // For testing only. Use certificate for validation.
 			},
 			Addresses: []string{config.OpenSearchEndpoint},
 			Username:  config.OpenSearchMasterUsername,

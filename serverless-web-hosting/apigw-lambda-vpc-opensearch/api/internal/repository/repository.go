@@ -6,12 +6,13 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/opensearch-project/opensearch-go"
-	"github.com/opensearch-project/opensearch-go/opensearchapi"
+	"github.com/opensearch-project/opensearch-go/v2"
+	"github.com/opensearch-project/opensearch-go/v2/opensearchapi"
 	"github.com/unitypark/apigw-lambda-vpc-opensearch/api/internal/entities"
 	"go.uber.org/zap"
 )
 
+// https://github.com/opensearch-project/opensearch-go/blob/main/USER_GUIDE.md
 // https://github.com/opensearch-project/opensearch-go/blob/main/guides/search.md
 type OpenSearchRepository interface {
 	GetDocuments(query string) (*entities.OpenSearchResponse, error)
