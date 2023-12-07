@@ -28,43 +28,44 @@ function SearchPage() {
         </div>
       </div>
       {/* {true && ( */}
-      {term && (
+      {term && data && (
         <div className="searchPage__results">
           <p className="searchPage__resultCount">
             About {data?.total} results ({data?.time} seconds) for{' '}
             {term}
           </p>
 
-          {data?.documents.map((doc) => (
-            <div className="searchPage__result">
-              <a
-                className="searchPage__resultTitle"
-                href={doc.reddit.url}
-              >
-                <h2>{doc.reddit.title}</h2>
-              </a>
-              <a
-                className="searchPage__resultLink"
-                href={doc.reddit.url}
-              >
-                {doc.pagemap?.cse_thumbnail?.length > 0 &&
-                  doc.pagemap?.cse_thumbnail[0]?.src && (
-                    <img
-                      className="searchPage__resultImage"
-                      src={doc.pagemap?.cse_thumbnail[0]?.src}
-                      alt=""
-                    />
-                  )}
-                {doc.reddit.url}
-              </a>
-              <p className="searchPage__resultSummary">
-                index: {doc.index}, score: {doc.score}
-              </p>
-              <p className="searchPage__resultSnippet">
-                {doc.reddit.comment}
-              </p>
-            </div>
-          ))}
+          {data.documents &&
+            data?.documents.map((doc) => (
+              <div className="searchPage__result">
+                <a
+                  className="searchPage__resultTitle"
+                  href={doc.reddit.url}
+                >
+                  <h2>{doc.reddit.title}</h2>
+                </a>
+                <a
+                  className="searchPage__resultLink"
+                  href={doc.reddit.url}
+                >
+                  {doc.pagemap?.cse_thumbnail?.length > 0 &&
+                    doc.pagemap?.cse_thumbnail[0]?.src && (
+                      <img
+                        className="searchPage__resultImage"
+                        src={doc.pagemap?.cse_thumbnail[0]?.src}
+                        alt=""
+                      />
+                    )}
+                  {doc.reddit.url}
+                </a>
+                <p className="searchPage__resultSummary">
+                  index: {doc.index}, score: {doc.score}
+                </p>
+                <p className="searchPage__resultSnippet">
+                  {doc.reddit.comment}
+                </p>
+              </div>
+            ))}
         </div>
       )}
     </div>
