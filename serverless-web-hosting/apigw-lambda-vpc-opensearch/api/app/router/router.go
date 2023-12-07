@@ -14,18 +14,20 @@ import (
 
 // GET http://example.com/search/?query=abc
 func RouteGlobalSearch(fiberApp *fiber.App, service service.OpenSearchService) fiber.Router {
-	return fiberApp.Get("/search", searchGlobally(service))
+	return fiberApp.Get("/api/search", searchGlobally(service))
 }
 
 // GET http://example.com/search/reddit/?query=abc
 func RouteIndexSearch(fiberApp *fiber.App, service service.OpenSearchService) fiber.Router {
-	return fiberApp.Get("/search/:index", searchInIndex(service))
+	return fiberApp.Get("/api/search/:index", searchInIndex(service))
 }
 
 func searchGlobally(openSearchService service.OpenSearchService) fiber.Handler {
-	zap.L().Debug("routing request to GET /search")
+	zap.L().Info("routing request to GET /api/search")
 	return func(c *fiber.Ctx) error {
+		zap.L().Info("fiber context", zap.Any("fiber.Ctx", c))
 		query := c.Query("query")
+		zap.L().Info("incoming query", zap.String("query", query))
 		if len(query) == 0 {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.ErrorResponse(errors.New("query parameter is empty")))
@@ -39,13 +41,12 @@ func searchGlobally(openSearchService service.OpenSearchService) fiber.Handler {
 			return c.JSON(response.ErrorResponse(err))
 		}
 		c.Status(http.StatusOK)
-
 		return c.JSON(response.SuccessResponse(result))
 	}
 }
 
 func searchInIndex(openSearchService service.OpenSearchService) fiber.Handler {
-	zap.L().Info("routing request to GET /search/:index")
+	zap.L().Info("routing request to GET /api/search/:index")
 	return func(c *fiber.Ctx) error {
 		zap.L().Info("fiber context", zap.Any("fiber.Ctx", c))
 

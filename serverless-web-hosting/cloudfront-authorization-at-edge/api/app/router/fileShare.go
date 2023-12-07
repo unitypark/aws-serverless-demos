@@ -36,7 +36,7 @@ func PostUploadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to POST /api/uploads")
 	return func(c *fiber.Ctx) error {
 		username := c.GetReqHeaders()["Username"]
-		zap.L().Info("username from header", zap.String("username", username))
+		zap.L().Info("username from header", zap.Any("username", username))
 
 		var requestBody postUploadRequest
 		err := c.BodyParser(&requestBody)
@@ -51,7 +51,7 @@ func PostUploadUrl(fileShareService service.FileShareService) fiber.Handler {
 		}
 		zap.L().Info(fmt.Sprintf("retrieved path from body: %s", requestBody.Path))
 
-		result, err := fileShareService.CreateUploadUrl(requestBody.Path, username, UPLOAD_URL_EXPIRING_TIME_IN_MINUTES)
+		result, err := fileShareService.CreateUploadUrl(requestBody.Path, username[0], UPLOAD_URL_EXPIRING_TIME_IN_MINUTES)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.UrlErrorResponse(err))
@@ -66,7 +66,7 @@ func PostDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to POST /api/downloads")
 	return func(c *fiber.Ctx) error {
 		username := c.GetReqHeaders()["Username"]
-		zap.L().Info("username from header", zap.String("username", username))
+		zap.L().Info("username from header", zap.Any("username", username))
 
 		var requestBody postDownloadRequest
 		err := c.BodyParser(&requestBody)
@@ -81,7 +81,7 @@ func PostDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 		}
 		zap.L().Info(fmt.Sprintf("retrieved path from body: %s", requestBody.Path))
 
-		result, err := fileShareService.CreateDownloadUrl(requestBody.Path, username, DOWNLOAD_URL_EXPIRING_TIME_IN_MINUTES)
+		result, err := fileShareService.CreateDownloadUrl(requestBody.Path, username[0], DOWNLOAD_URL_EXPIRING_TIME_IN_MINUTES)
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.UrlErrorResponse(err))
@@ -96,7 +96,7 @@ func GetDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 	zap.L().Debug("routing request to GET /api/downloads/:key")
 	return func(c *fiber.Ctx) error {
 		username := c.GetReqHeaders()["Username"]
-		zap.L().Info("username from header", zap.String("username", username))
+		zap.L().Info("username from header", zap.String("username", username[0]))
 
 		accessKey := c.Params("key")
 		if len(accessKey) == 0 {
@@ -105,7 +105,7 @@ func GetDownloadUrl(fileShareService service.FileShareService) fiber.Handler {
 		}
 		zap.L().Debug(fmt.Sprintf("retrieved path parameter: %s", accessKey))
 
-		result, err := fileShareService.GetUrl(accessKey, username)
+		result, err := fileShareService.GetUrl(accessKey, username[0])
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
 			return c.JSON(response.UrlErrorResponse(err))

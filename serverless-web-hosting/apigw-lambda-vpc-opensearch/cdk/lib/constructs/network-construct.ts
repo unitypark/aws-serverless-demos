@@ -14,7 +14,7 @@ export default class NetworkConstruct extends Construct {
       vpcName: `${props.appPrefix}-vpc`,
       natGateways: 0,  
       ipAddresses: IpAddresses.cidr('10.0.0.0/18'),
-      maxAzs: 2,
+      maxAzs: 3,
       subnetConfiguration: [
         {
           name: `${props.appPrefix}-isolated-subnet`,

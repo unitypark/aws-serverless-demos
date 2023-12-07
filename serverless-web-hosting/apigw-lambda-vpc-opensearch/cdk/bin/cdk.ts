@@ -6,7 +6,7 @@ import { OpenSearchStack } from '../lib/opensearch-stack';
 const app = new cdk.App();
 const appContext = app.node.tryGetContext('app');
 
-new OpenSearchStack(app, 'open-search-stack', {
+new OpenSearchStack(app, `${appContext.name}-stack`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

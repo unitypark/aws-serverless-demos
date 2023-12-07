@@ -1,13 +1,13 @@
-import { Construct } from 'constructs';
 import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import OpenSearchConstruct from './constructs/opensearch-construct';
 import NetworkConstruct from './constructs/network-construct';
 import BastionConstruct from './constructs/bastion-construct';
-import RestApiConstruct from './constructs/rest-api-construct';
+import HTTPApiConstruct from './constructs/http-api-construct';
 import CloudfrontConstruct from './constructs/cloudfront-construct';
+import { Construct } from 'constructs';
 
 interface Props extends StackProps {
-  prefix: string
+  prefix: string;
 }
 
 export class OpenSearchStack extends Stack {
@@ -32,25 +32,26 @@ export class OpenSearchStack extends Stack {
       opensearchSecurityGroup: network.opensearchSecurityGroup,
     });
 
-    const apiStageName = 'dev'
-    const api = new RestApiConstruct(this, "RestApiConstruct", {
+    const cloudfront = new CloudfrontConstruct(this, "CloudfrontConstruct", {
       appPrefix: props.prefix,
-      stageName: apiStageName,
+    })
+
+    const apiRoute = '/api'
+    const restApi = new HTTPApiConstruct(this, "RestApiConstruct", {
+      appPrefix: props.prefix,
+      apiRoute: apiRoute,
       vpc: network.vpc,
       masterUsername: opensearch.masterUsername,
       osDomain: opensearch.osDomain,
+      cloudfrontDomain: `https://${cloudfront.distribution.distributionDomainName}`
     });
-
-    const cloudfront = new CloudfrontConstruct(this, "CloudfrontConstruct", {
-      appPrefix: props.prefix
-    })
 
     new CfnOutput(this, 'OpenSearchDashboardDomainEndpoint', {
       value: `${opensearch.osDomain.domainEndpoint}`
     });
 
-    new CfnOutput(this, 'RestApiEndpoint', {
-      value: `https://${api.api.restApiId}.execute-api.${this.region}.amazonaws.com/${apiStageName}`
+    new CfnOutput(this, 'HTTPApiEndpoint', {
+      value: `${restApi.api.apiEndpoint}${apiRoute}`
     });
 
     new CfnOutput(this, 'WebsiteBucketName', {

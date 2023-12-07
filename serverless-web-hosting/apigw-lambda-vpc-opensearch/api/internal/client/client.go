@@ -27,6 +27,7 @@ func New(config *appConfig.Config) (*opensearch.Client, error) {
 			Password:  config.OpenSearchMasterUserPassword,
 		})
 		if err != nil {
+			zap.L().Error("unexpected error during initializing opensearch client", zap.Error(err))
 			return nil, err
 		}
 		openSearchClient = client

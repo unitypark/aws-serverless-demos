@@ -21,7 +21,7 @@ export default class OpenSearchConstruct extends Construct {
     
     this.osDomain = new Domain(this, 'OsDomain', {
       domainName: osDomainName,
-      version: EngineVersion.OPENSEARCH_2_7,
+      version: EngineVersion.OPENSEARCH_2_11,
       nodeToNodeEncryption: true,
       // portNumber=443
       enforceHttps: true,
@@ -37,7 +37,7 @@ export default class OpenSearchConstruct extends Construct {
       zoneAwareness: {
         enabled: true,
         // default: 2
-        availabilityZoneCount: 2,
+        availabilityZoneCount: 3,
       },
       tlsSecurityPolicy: TLSSecurityPolicy.TLS_1_2,
       fineGrainedAccessControl: {
@@ -54,13 +54,13 @@ export default class OpenSearchConstruct extends Construct {
       ],
       capacity: {
         // must be same number like availabilityZoneCount (default: 2)
-        dataNodes: 2,
-        dataNodeInstanceType: "t3.small.search",
+        dataNodes: 3,
+        dataNodeInstanceType: "or1.medium.search",
         multiAzWithStandbyEnabled: false,
       },
       ebs: {
-        volumeSize: 10,
-        volumeType: EbsDeviceVolumeType.GP2,
+        volumeSize: 20,
+        volumeType: EbsDeviceVolumeType.GP3,
       },
       enableVersionUpgrade: true,
       removalPolicy: RemovalPolicy.DESTROY,

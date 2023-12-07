@@ -1,8 +1,4 @@
 {
-  "hosted-zone:account=979213071888:domainName=cognito-opensearch.awsserverless.run:region=eu-west-1": {
-    "Id": "/hostedzone/Z0729737NNK3OT9SZWEU",
-    "Name": "cognito-opensearch.awsserverless.run."
-  },
   "availability-zones:account=979213071888:region=eu-west-1": [
     "eu-west-1a",
     "eu-west-1b",

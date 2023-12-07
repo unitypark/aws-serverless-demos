@@ -1,0 +1,19 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.home__body > p {
+  font-size: 5rem;
+  font-weight: 100;
+  color: rgb(100, 255, 218);
+}
+
+.home__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}

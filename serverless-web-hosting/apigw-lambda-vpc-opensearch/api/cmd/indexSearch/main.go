@@ -53,6 +53,6 @@ func main() {
 	} else {
 		zap.L().Info("start lambda for production")
 		// Make the handler available for Remote Procedure Call by AWS Lambda
-		lambda.Start(lambdaHandler.HandleRestAPIGatewayProxyRequest)
+		lambda.Start(lambdaHandler.HandleAPIGatewayV2HTTPRequest)
 	}
 }
