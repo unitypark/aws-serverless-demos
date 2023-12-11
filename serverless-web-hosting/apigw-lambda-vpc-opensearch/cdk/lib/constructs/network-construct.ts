@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { IpAddresses, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpointAwsService, IpAddresses, Port, SecurityGroup, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface OpenSearchProps {
   appPrefix: string;
@@ -25,6 +25,24 @@ export default class NetworkConstruct extends Construct {
           subnetType: SubnetType.PRIVATE_ISOLATED,
         },
       ],
+    });
+
+    // Create VPC endpoints
+    // https://docs.aws.amazon.com/systems-manager/latest/userguide/setup-create-vpc.html
+    this.vpc.addInterfaceEndpoint("ssm-endpoint", {
+      service: InterfaceVpcEndpointAwsService.SSM
+    });
+    this.vpc.addInterfaceEndpoint("ssm-msg-endpoint", {
+      service: InterfaceVpcEndpointAwsService.SSM_MESSAGES
+    });
+    this.vpc.addInterfaceEndpoint("ec2-endpoint", {
+      service: InterfaceVpcEndpointAwsService.EC2
+    });
+    this.vpc.addInterfaceEndpoint("ec2-msg-endpoint", {
+      service: InterfaceVpcEndpointAwsService.EC2_MESSAGES
+    });
+    this.vpc.addGatewayEndpoint("s3-endpoint", {
+      service: InterfaceVpcEndpointAwsService.S3
     });
 
     // Security Group
