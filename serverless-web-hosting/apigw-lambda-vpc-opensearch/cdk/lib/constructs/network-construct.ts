@@ -17,6 +17,10 @@ export default class NetworkConstruct extends Construct {
       maxAzs: 3,
       subnetConfiguration: [
         {
+          name: `${props.appPrefix}-private-subnet`,
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        {
           name: `${props.appPrefix}-isolated-subnet`,
           subnetType: SubnetType.PRIVATE_ISOLATED,
         },
