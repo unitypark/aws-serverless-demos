@@ -721,7 +721,7 @@ export class Authenticator {
         request.uri.includes("cms-upload")
       ) {
         this._logger.info({
-          msg: "User is no longer authenticated to use qsk service, returning 401...",
+          msg: "User is no longer authenticated to use our service, returning 401...",
         });
         const unauthorizedResponse: CloudFrontResultResponse = {
           status: "401",

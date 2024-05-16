@@ -29,9 +29,6 @@ export class AuthenticationHandler {
     ssmClient: SSMClient,
     prefix: string,
   ): Promise<string> => {
-    // pj-qsk/authentication-gateway
-    // qsk-dev/authentication-gateway
-    // qsk/authentication-gateway
     return (
       (
         await ssmClient.send(
