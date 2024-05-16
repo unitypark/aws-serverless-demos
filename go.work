@@ -21,5 +21,6 @@ use (
 	./serverless-web-hosting/apigw-lambda-vpc-opensearch/api
 	./serverless-web-hosting/apigw-lambda-vpc-opensearch/data
 	./serverless-web-hosting/cloudfront-authorization-at-edge/api
+	./serverless-web-hosting/cloudfront-reverse-proxy/api
 	./cqrs-kafka-gRPC-microservices/cqrs-kafka-producer-consumer-api
 )

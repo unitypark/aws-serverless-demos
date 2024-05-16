@@ -1,0 +1,7 @@
+node_modules
+output-template.yml
+*.tgz
+coverage/
+dist/
+.DS_Store
+coverage
